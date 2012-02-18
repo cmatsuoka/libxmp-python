@@ -5,6 +5,20 @@
 import sys, os, xmp
 import pyaudio
 
+class sound:
+	def __init__(self):
+		self._p = p = pyaudio.PyAudio()
+		self._stream = p.open(format = pyaudio.paInt16,
+				channels = 2, rate = 44100, output = True)
+
+	def write(self, buf):
+		self._stream.write(buf)
+
+	def close(self):
+		self._stream.close()
+		self._p.terminate()
+
+
 def show_info(mod):
 	print "Name: %s" % (mod.name)
 	print "Type: %s" % (mod.type)
@@ -22,11 +36,13 @@ if len(sys.argv) < 2:
 info = xmp.struct_xmp_module_info()
 
 x = xmp.Xmp()
-x.loadModule(sys.argv[1])
+try:
+	x.loadModule(sys.argv[1])
+except IOError as (errno, strerror):
+	sys.stderr.write("%s: %s\n" % (sys.argv[1], strerror))
+	sys.exit(1)
 
-p = pyaudio.PyAudio()
-stream = p.open(format = pyaudio.paInt16, channels = 2, rate = 44100,
-		output = True)
+s = sound()
 
 x.playerStart(0, 44100, 0)
 x.getInfo(info)
@@ -45,11 +61,8 @@ while x.playerFrame():
 		sys.stdout.flush();
 
 	buf = x.getBuffer(info)
-	stream.write(buf);	
+	s.write(buf);	
 
 x.playerEnd()
-
-stream.close()
-p.terminate()
-
+s.close()
 x.releaseModule()

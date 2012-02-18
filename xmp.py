@@ -6,12 +6,22 @@ class Xmp:
 		self._ctx = xmp_create_context()
 
 	def __del__(self):
+		self.free()
+
+	def free(self):
 		xmp_free_context(self._ctx)
 
+	def testModule(self, path):
+		code = xmp_test_module(self._ctx, path)
+		if (code < 0):
+			code = -code
+			raise IOError(code, os.strerror(code))
+
 	def loadModule(self, path):
-		ret = xmp_load_module(self._ctx, path)
-		if (ret != 0):
-			raise IOError('Error loading module')
+		code = xmp_load_module(self._ctx, path)
+		if (code < 0):
+			code = -code
+			raise IOError(code, os.strerror(code))
 	
 	def releaseModule(self):
 		xmp_release_module(self._ctx)
