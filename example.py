@@ -8,10 +8,11 @@ import pyaudio
 def show_info(mod):
 	print "Name: %s" % (mod.name)
 	print "Type: %s" % (mod.type)
-	print "Instruments: %d" % (mod.ins)
+	print "Instruments: %d   Samples: %d" % (mod.ins, mod.smp)
 	for i in range (mod.ins):
 		ins = mod.xxi[i]
-		print " %2d %s" % (i, ins.name)
+		if len(ins.name.rstrip()) > 0:
+			print(" %2d %-32.32s  " % (i, mod.xxi[i].name))
 	
 
 if len(sys.argv) < 2:
