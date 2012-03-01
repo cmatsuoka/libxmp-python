@@ -929,7 +929,7 @@ struct_xmp_module_info._fields_ = [
     ('mod', POINTER(struct_xmp_module)),
 ]
 
-xmp_context = String # /home/claudio/xmp/xmp4/include/xmp.h: 223
+xmp_context = c_long # /home/claudio/xmp/xmp4/include/xmp.h: 223
 
 # /home/claudio/xmp/xmp4/include/xmp.h: 225
 try:
