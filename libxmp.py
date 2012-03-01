@@ -838,7 +838,7 @@ struct_xmp_module._fields_ = [
     ('xxo', c_ubyte * 256),
 ]
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 183
+# /home/claudio/xmp/xmp4/include/xmp.h: 180
 class struct_xmp_test_info(Structure):
     pass
 
@@ -851,7 +851,7 @@ struct_xmp_test_info._fields_ = [
     ('type', c_char * 64),
 ]
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 213
+# /home/claudio/xmp/xmp4/include/xmp.h: 206
 class struct_xmp_channel_info(Structure):
     pass
 
@@ -865,6 +865,7 @@ struct_xmp_channel_info.__slots__ = [
     'volume',
     'pan',
     'reserved',
+    'event',
 ]
 struct_xmp_channel_info._fields_ = [
     ('period', c_uint),
@@ -876,9 +877,10 @@ struct_xmp_channel_info._fields_ = [
     ('volume', c_ubyte),
     ('pan', c_ubyte),
     ('reserved', c_ubyte),
+    ('event', struct_xmp_event),
 ]
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 194
+# /home/claudio/xmp/xmp4/include/xmp.h: 187
 class struct_xmp_module_info(Structure):
     pass
 
@@ -925,70 +927,76 @@ struct_xmp_module_info._fields_ = [
     ('mod', POINTER(struct_xmp_module)),
 ]
 
-xmp_context = String # /home/claudio/xmp/xmp4/include/xmp.h: 229
+xmp_context = String # /home/claudio/xmp/xmp4/include/xmp.h: 223
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 243
+# /home/claudio/xmp/xmp4/include/xmp.h: 225
+try:
+    xmp_version = (c_uint).in_dll(_libs['xmp'], 'xmp_version')
+except:
+    pass
+
+# /home/claudio/xmp/xmp4/include/xmp.h: 247
 if hasattr(_libs['xmp'], 'xmp_create_context'):
     xmp_create_context = _libs['xmp'].xmp_create_context
     xmp_create_context.argtypes = []
     xmp_create_context.restype = xmp_context
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 244
+# /home/claudio/xmp/xmp4/include/xmp.h: 248
+if hasattr(_libs['xmp'], 'xmp_test_module'):
+    xmp_test_module = _libs['xmp'].xmp_test_module
+    xmp_test_module.argtypes = [String, POINTER(struct_xmp_test_info)]
+    xmp_test_module.restype = c_int
+
+# /home/claudio/xmp/xmp4/include/xmp.h: 249
 if hasattr(_libs['xmp'], 'xmp_free_context'):
     xmp_free_context = _libs['xmp'].xmp_free_context
     xmp_free_context.argtypes = [xmp_context]
     xmp_free_context.restype = None
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 245
+# /home/claudio/xmp/xmp4/include/xmp.h: 250
 if hasattr(_libs['xmp'], 'xmp_load_module'):
     xmp_load_module = _libs['xmp'].xmp_load_module
     xmp_load_module.argtypes = [xmp_context, String]
     xmp_load_module.restype = c_int
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 246
-if hasattr(_libs['xmp'], 'xmp_test_module'):
-    xmp_test_module = _libs['xmp'].xmp_test_module
-    xmp_test_module.argtypes = [xmp_context, String, POINTER(struct_xmp_test_info)]
-    xmp_test_module.restype = c_int
-
-# /home/claudio/xmp/xmp4/include/xmp.h: 247
+# /home/claudio/xmp/xmp4/include/xmp.h: 251
 if hasattr(_libs['xmp'], 'xmp_release_module'):
     xmp_release_module = _libs['xmp'].xmp_release_module
     xmp_release_module.argtypes = [xmp_context]
     xmp_release_module.restype = None
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 248
+# /home/claudio/xmp/xmp4/include/xmp.h: 252
 if hasattr(_libs['xmp'], '_xmp_ctl'):
     _func = _libs['xmp']._xmp_ctl
     _restype = c_int
     _argtypes = [xmp_context, c_int]
     _xmp_ctl = _variadic_function(_func,_restype,_argtypes)
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 249
+# /home/claudio/xmp/xmp4/include/xmp.h: 253
 if hasattr(_libs['xmp'], 'xmp_player_start'):
     xmp_player_start = _libs['xmp'].xmp_player_start
     xmp_player_start.argtypes = [xmp_context, c_int, c_int, c_int]
     xmp_player_start.restype = c_int
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 250
+# /home/claudio/xmp/xmp4/include/xmp.h: 254
 if hasattr(_libs['xmp'], 'xmp_player_frame'):
     xmp_player_frame = _libs['xmp'].xmp_player_frame
     xmp_player_frame.argtypes = [xmp_context]
     xmp_player_frame.restype = c_int
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 251
+# /home/claudio/xmp/xmp4/include/xmp.h: 255
 if hasattr(_libs['xmp'], 'xmp_player_get_info'):
     xmp_player_get_info = _libs['xmp'].xmp_player_get_info
     xmp_player_get_info.argtypes = [xmp_context, POINTER(struct_xmp_module_info)]
     xmp_player_get_info.restype = None
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 252
+# /home/claudio/xmp/xmp4/include/xmp.h: 256
 if hasattr(_libs['xmp'], 'xmp_player_end'):
     xmp_player_end = _libs['xmp'].xmp_player_end
     xmp_player_end.argtypes = [xmp_context]
     xmp_player_end.restype = None
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 253
+# /home/claudio/xmp/xmp4/include/xmp.h: 257
 if hasattr(_libs['xmp'], 'xmp_get_format_list'):
     xmp_get_format_list = _libs['xmp'].xmp_get_format_list
     xmp_get_format_list.argtypes = []
@@ -1258,49 +1266,49 @@ try:
 except:
     pass
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 192
+# /home/claudio/xmp/xmp4/include/xmp.h: 185
 try:
     XMP_PERIOD_BASE = 6847
 except:
     pass
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 232
+# /home/claudio/xmp/xmp4/include/xmp.h: 236
 def xmp_ord_next(p):
     return (_xmp_ctl (p, XMP_CTL_ORD_NEXT))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 233
+# /home/claudio/xmp/xmp4/include/xmp.h: 237
 def xmp_ord_prev(p):
     return (_xmp_ctl (p, XMP_CTL_ORD_PREV))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 234
+# /home/claudio/xmp/xmp4/include/xmp.h: 238
 def xmp_ord_set(p, x):
     return (_xmp_ctl (p, XMP_CTL_ORD_SET, x))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 235
+# /home/claudio/xmp/xmp4/include/xmp.h: 239
 def xmp_mod_stop(p):
     return (_xmp_ctl (p, XMP_CTL_MOD_STOP))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 236
+# /home/claudio/xmp/xmp4/include/xmp.h: 240
 def xmp_stop_module(p):
     return (_xmp_ctl (p, XMP_CTL_MOD_STOP))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 237
+# /home/claudio/xmp/xmp4/include/xmp.h: 241
 def xmp_mod_restart(p):
     return (_xmp_ctl (p, XMP_CTL_MOD_RESTART))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 238
+# /home/claudio/xmp/xmp4/include/xmp.h: 242
 def xmp_gvol_inc(p):
     return (_xmp_ctl (p, XMP_CTL_GVOL_INC))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 239
+# /home/claudio/xmp/xmp4/include/xmp.h: 243
 def xmp_gvol_dec(p):
     return (_xmp_ctl (p, XMP_CTL_GVOL_DEC))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 240
+# /home/claudio/xmp/xmp4/include/xmp.h: 244
 def xmp_seek_time(p, x):
     return (_xmp_ctl (p, XMP_CTL_SEEK_TIME, x))
 
-# /home/claudio/xmp/xmp4/include/xmp.h: 241
+# /home/claudio/xmp/xmp4/include/xmp.h: 245
 def xmp_channel_mute(p, x, y):
     return (_xmp_ctl (p, XMP_CTL_CH_MUTE, x, y))
 
@@ -1322,11 +1330,11 @@ xmp_sample = struct_xmp_sample # /home/claudio/xmp/xmp4/include/xmp.h: 140
 
 xmp_module = struct_xmp_module # /home/claudio/xmp/xmp4/include/xmp.h: 157
 
-xmp_test_info = struct_xmp_test_info # /home/claudio/xmp/xmp4/include/xmp.h: 183
+xmp_test_info = struct_xmp_test_info # /home/claudio/xmp/xmp4/include/xmp.h: 180
 
-xmp_channel_info = struct_xmp_channel_info # /home/claudio/xmp/xmp4/include/xmp.h: 213
+xmp_channel_info = struct_xmp_channel_info # /home/claudio/xmp/xmp4/include/xmp.h: 206
 
-xmp_module_info = struct_xmp_module_info # /home/claudio/xmp/xmp4/include/xmp.h: 194
+xmp_module_info = struct_xmp_module_info # /home/claudio/xmp/xmp4/include/xmp.h: 187
 
 # No inserted files
 
