@@ -1,0 +1,45 @@
+
+example1.py: A module player using pyaudio.
+
+Usage: example1.py <module file>
+
+$ ./example1.py cj-blue.zip
+Name: Blue Flame
+Type: Impulse Tracker 2.14 IMPM 2.00
+Instruments: 5   Samples: 28
+  0 Bass / Rhythm Guitar              
+  1 Lead Guitar                       
+  2 Strings                           
+  3 Drumkit                           
+  4 Distorted Guitar                  
+   1/ 42   44/ 64
+
+
+example2.py: List and identify module files.
+
+Usage: example2.py <modules>
+
+$ ./example2.py *
+1942.mod                  Protracker (MOD)          1942
+4-MAT - Eternity.xm       Fast Tracker II (XM)      Eternity
+CJ-PURG1.IT               Impulse Tracker (IT)      Purgatory - Opening
+Deep In Her Eyes - Remake Impulse Tracker (IT)      Deep in her Eyes
+Kingdom.mod               Protracker (MOD)          kingdom of pleasure
+QUBE-Dpaint4Intro.mod     Startrekker (MOD)         tritris
+angie s.mod               Soundtracker (MOD)        angie s.
+bubble_bobble.mod         Protracker (MOD)          bubble bobble
+cj-blue.zip               Impulse Tracker (IT)      Blue Flame
+
+
+example3.py: Extract samples from module files. If the instrument has more
+             than one sample, all samples will be extracted to different
+             wave files.
+
+Usage: example3.py <module file> <instrument number>
+
+$ ./example3.py CJ-PURG1.IT 1
+Extract sample 0 as sample-01-00.wav (133994 bytes)
+Extract sample 1 as sample-01-01.wav (122421 bytes)
+Extract sample 2 as sample-01-02.wav (127232 bytes)
+Extract sample 3 as sample-01-03.wav (114800 bytes)
+

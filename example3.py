@@ -1,10 +1,10 @@
 #!/usr/bin/python
 #
-# Example 3: dump samples to wav files
+# Example 3: extract samples to wav files
 
 import sys, os, xmp, wave
 
-def dump_sample(x, mod, insnum, num):
+def extract_sample(x, mod, insnum, num):
 	smpnum = mod.xxi[insnum].sub[num].sid
 	sample = mod.xxs[smpnum]
 	filename = "sample-%02x-%02x.wav" % (insnum, num)
@@ -15,7 +15,7 @@ def dump_sample(x, mod, insnum, num):
 	else:
 		sample_width = 1
 
-	print "Dump sample %d as %s (%d bytes)" % (num, filename, length)
+	print "Extract sample %d as %s (%d bytes)" % (num, filename, length)
 
 	w = wave.open(filename, 'w');
 	w.setnchannels(1)
@@ -23,10 +23,10 @@ def dump_sample(x, mod, insnum, num):
 	w.setframerate(16000)
 	w.writeframes(x.getSample(mod, smpnum))
 
-def dump_instrument(x, mod, num):
+def extract_instrument(x, mod, num):
 	instrument = mod.xxi[num]
 	for i in range (instrument.nsm):
-		dump_sample(x, mod, num, i)
+		extract_sample(x, mod, num, i)
 
 
 if len(sys.argv) < 3:
@@ -46,4 +46,4 @@ except IOError as (errno, strerror):
 x.playerStart(0, 44100, 0)
 x.getInfo(info)
 
-dump_instrument(x, info.mod[0], int(sys.argv[2]))
+extract_instrument(x, info.mod[0], int(sys.argv[2]))
