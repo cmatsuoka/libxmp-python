@@ -38,6 +38,7 @@ example3.py: Extract samples from module files. If the instrument has more
 Usage: example3.py <module file> <instrument number>
 
 $ ./example3.py CJ-PURG1.IT 1
+Instrument 1 (Piano) has 4 samples
 Extract sample 0 as sample-01-00.wav (133994 bytes)
 Extract sample 1 as sample-01-01.wav (122421 bytes)
 Extract sample 2 as sample-01-02.wav (127232 bytes)

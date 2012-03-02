@@ -24,8 +24,9 @@ def extract_sample(x, mod, insnum, num):
 	w.writeframes(x.getSample(mod, smpnum))
 
 def extract_instrument(x, mod, num):
-	instrument = mod.xxi[num]
-	for i in range (instrument.nsm):
+	inst = mod.xxi[num]
+	print "Instrument %d (%s) has %d samples" % (num, inst.name, inst.nsm)
+	for i in range (inst.nsm):
 		extract_sample(x, mod, num, i)
 
 
