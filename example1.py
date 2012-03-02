@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# A simple modplayer in python using xmp and pyaudio
+# Example 1: A simple modplayer in python using xmp and pyaudio
 
 import sys, os, xmp
 import pyaudio
