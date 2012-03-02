@@ -1,6 +1,8 @@
 from ctypes import *
 from libxmp import *
 
+XMP_SAMPLE_16BIT = XMP_SAMPLE_16BIT
+
 class Xmp:
 	def __init__(self):
 		self._ctx = xmp_create_context()
@@ -41,4 +43,15 @@ class Xmp:
 
 	def playerEnd(self):
 		xmp_player_end(self._ctx)
+
+	def getSample(self, mod, num):
+		sample = mod.xxs[num]
+		buf = ctypes.cast(sample.data, POINTER(c_int8))
+
+		if sample.flg & XMP_SAMPLE_16BIT:
+			width = 2
+		else:
+			width = 1
+
+		return ctypes.string_at(buf, sample.len * width)
 
