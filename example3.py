@@ -20,7 +20,7 @@ def dump_sample(x, mod, insnum, num):
 	w = wave.open(filename, 'w');
 	w.setnchannels(1)
 	w.setsampwidth(sample_width)
-	w.setframerate(22050)
+	w.setframerate(16000)
 	w.writeframes(x.getSample(mod, smpnum))
 
 def dump_instrument(x, mod, num):
