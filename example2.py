@@ -1,4 +1,6 @@
 #!/usr/bin/python
+#
+# Example 2: identify module files
 
 import sys, os, xmp
 
