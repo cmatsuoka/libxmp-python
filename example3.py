@@ -9,6 +9,11 @@ def extract_sample(x, mod, insnum, num):
 	sample = mod.xxs[smpnum]
 	filename = "sample-%02x-%02x.wav" % (insnum, num)
 	length = sample.len
+
+	if sample.len == 0:
+		print "Skip empty sample %d" % (num)
+		return
+
 	if sample.flg & xmp.XMP_SAMPLE_16BIT:
 		sample_width = 2
 		length *= 2
@@ -25,7 +30,7 @@ def extract_sample(x, mod, insnum, num):
 
 def extract_instrument(x, mod, num):
 	inst = mod.xxi[num]
-	print "Instrument %d (%s) has %d samples" % (num, inst.name, inst.nsm)
+	print 'Instrument %d ("%s") has %d samples' % (num, inst.name, inst.nsm)
 	for i in range (inst.nsm):
 		extract_sample(x, mod, num, i)
 
