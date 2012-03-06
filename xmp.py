@@ -619,7 +619,7 @@ struct_xmp_pattern.__slots__ = [
 ]
 struct_xmp_pattern._fields_ = [
     ('rows', c_int),
-    ('index', c_int * 1),
+    ('index', c_int * 256),
 ]
 
 class struct_xmp_event(Structure):
@@ -655,7 +655,7 @@ struct_xmp_track.__slots__ = [
 ]
 struct_xmp_track._fields_ = [
     ('rows', c_int),
-    ('event', struct_xmp_event * 1),
+    ('event', struct_xmp_event * 256),
 ]
 
 class struct_xmp_envelope(Structure):
