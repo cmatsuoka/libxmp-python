@@ -26,8 +26,8 @@ def display_pattern(mod, num):
 			elif event.note > 128:
 				sys.stdout.write("===")
 			else:
-				n = event.note % 12
-				o = event.note / 12
+				n = (event.note - 1) % 12
+				o = (event.note - 1) / 12
 				sys.stdout.write("%s%d" % (notes[n], o))
 
 			sys.stdout.write(" ")
