@@ -786,6 +786,18 @@ struct_xmp_sample._fields_ = [
     ('data', POINTER(c_ubyte)),
 ]
 
+class struct_xmp_sequence(Structure):
+    pass
+
+struct_xmp_sequence.__slots__ = [
+    'entry_point',
+    'duration',
+]
+struct_xmp_sequence._fields_ = [
+    ('entry_point', c_int),
+    ('duration', c_int),
+]
+
 class struct_xmp_module(Structure):
     pass
 
@@ -797,7 +809,7 @@ struct_xmp_module.__slots__ = [
     'chn',
     'ins',
     'smp',
-    'tpo',
+    'spd',
     'bpm',
     'len',
     'rst',
@@ -817,7 +829,7 @@ struct_xmp_module._fields_ = [
     ('chn', c_int),
     ('ins', c_int),
     ('smp', c_int),
-    ('tpo', c_int),
+    ('spd', c_int),
     ('bpm', c_int),
     ('len', c_int),
     ('rst', c_int),
@@ -879,7 +891,7 @@ struct_xmp_module_info.__slots__ = [
     'row',
     'num_rows',
     'frame',
-    'tempo',
+    'speed',
     'bpm',
     'time',
     'frame_time',
@@ -894,6 +906,8 @@ struct_xmp_module_info.__slots__ = [
     'channel_info',
     'mod',
     'comment',
+    'num_sequences',
+    'sequence',
 ]
 struct_xmp_module_info._fields_ = [
     ('order', c_int),
@@ -901,7 +915,7 @@ struct_xmp_module_info._fields_ = [
     ('row', c_int),
     ('num_rows', c_int),
     ('frame', c_int),
-    ('tempo', c_int),
+    ('speed', c_int),
     ('bpm', c_int),
     ('time', c_int),
     ('frame_time', c_int),
@@ -916,6 +930,8 @@ struct_xmp_module_info._fields_ = [
     ('channel_info', struct_xmp_channel_info * 64),
     ('mod', POINTER(struct_xmp_module)),
     ('comment', String),
+    ('num_sequences', c_int),
+    ('sequence', POINTER(struct_xmp_sequence)),
 ]
 
 xmp_context = c_long
@@ -1288,6 +1304,8 @@ xmp_subinstrument = struct_xmp_subinstrument
 xmp_instrument = struct_xmp_instrument
 
 xmp_sample = struct_xmp_sample
+
+xmp_sequence = struct_xmp_sequence
 
 xmp_module = struct_xmp_module
 
