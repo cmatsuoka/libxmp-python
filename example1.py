@@ -44,7 +44,7 @@ except IOError as (errno, strerror):
 
 s = sound()
 
-x.playerStart(0, 44100, 0)
+x.playerStart(44100, 0)
 x.getInfo(info)
 
 mod = info.mod[0];

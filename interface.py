@@ -24,8 +24,8 @@ class Xmp:
 	def releaseModule(self):
 		xmp_release_module(self._ctx)
 
-	def playerStart(self, start, freq, mode):
-		return xmp_player_start(self._ctx, start, freq, mode)
+	def playerStart(self, freq, mode):
+		return xmp_player_start(self._ctx, freq, mode)
 
 	def getInfo(self, info):
 		return xmp_player_get_info(self._ctx, pointer(info))

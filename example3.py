@@ -49,7 +49,7 @@ except IOError as (errno, strerror):
 	sys.stderr.write("%s: %s\n" % (sys.argv[1], strerror))
 	sys.exit(1)
 
-x.playerStart(0, 44100, 0)
+x.playerStart(44100, 0)
 x.getInfo(info)
 
 extract_instrument(x, info.mod[0], int(sys.argv[2]))
