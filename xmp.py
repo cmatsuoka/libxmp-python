@@ -906,8 +906,9 @@ struct_xmp_module_info.__slots__ = [
     'channel_info',
     'mod',
     'comment',
-    'num_sequences',
     'sequence',
+    'num_sequences',
+    'seq_data',
 ]
 struct_xmp_module_info._fields_ = [
     ('order', c_int),
@@ -930,8 +931,9 @@ struct_xmp_module_info._fields_ = [
     ('channel_info', struct_xmp_channel_info * 64),
     ('mod', POINTER(struct_xmp_module)),
     ('comment', String),
+    ('sequence', c_int),
     ('num_sequences', c_int),
-    ('sequence', POINTER(struct_xmp_sequence)),
+    ('seq_data', POINTER(struct_xmp_sequence)),
 ]
 
 xmp_context = c_long
@@ -1257,9 +1259,6 @@ def xmp_ord_set(p, x):
     return (_xmp_ctl (p, XMP_CTL_ORD_SET, x))
 
 def xmp_mod_stop(p):
-    return (_xmp_ctl (p, XMP_CTL_MOD_STOP))
-
-def xmp_stop_module(p):
     return (_xmp_ctl (p, XMP_CTL_MOD_STOP))
 
 def xmp_mod_restart(p):
