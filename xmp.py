@@ -877,7 +877,7 @@ struct_xmp_channel_info._fields_ = [
     ('instrument', c_ubyte),
     ('sample', c_ubyte),
     ('volume', c_ubyte),
-    ('pan', c_char),
+    ('pan', c_ubyte),
     ('reserved', c_ubyte),
     ('event', struct_xmp_event),
 ]
@@ -1027,17 +1027,17 @@ except:
     pass
 
 try:
-    XMP_CTL_ORD_NEXT = 0
+    XMP_CTL_POS_NEXT = 0
 except:
     pass
 
 try:
-    XMP_CTL_ORD_PREV = 1
+    XMP_CTL_POS_PREV = 1
 except:
     pass
 
 try:
-    XMP_CTL_ORD_SET = 2
+    XMP_CTL_POS_SET = 2
 except:
     pass
 
@@ -1048,16 +1048,6 @@ except:
 
 try:
     XMP_CTL_MOD_RESTART = 4
-except:
-    pass
-
-try:
-    XMP_CTL_GVOL_INC = 5
-except:
-    pass
-
-try:
-    XMP_CTL_GVOL_DEC = 6
 except:
     pass
 
@@ -1251,26 +1241,20 @@ try:
 except:
     pass
 
-def xmp_ord_next(p):
-    return (_xmp_ctl (p, XMP_CTL_ORD_NEXT))
+def xmp_next_position(p):
+    return (_xmp_ctl (p, XMP_CTL_POS_NEXT))
 
-def xmp_ord_prev(p):
-    return (_xmp_ctl (p, XMP_CTL_ORD_PREV))
+def xmp_prev_position(p):
+    return (_xmp_ctl (p, XMP_CTL_POS_PREV))
 
-def xmp_ord_set(p, x):
-    return (_xmp_ctl (p, XMP_CTL_ORD_SET, x))
+def xmp_set_position(p, x):
+    return (_xmp_ctl (p, XMP_CTL_POS_SET, x))
 
-def xmp_mod_stop(p):
+def xmp_stop_module(p):
     return (_xmp_ctl (p, XMP_CTL_MOD_STOP))
 
-def xmp_mod_restart(p):
+def xmp_restart_module(p):
     return (_xmp_ctl (p, XMP_CTL_MOD_RESTART))
-
-def xmp_gvol_inc(p):
-    return (_xmp_ctl (p, XMP_CTL_GVOL_INC))
-
-def xmp_gvol_dec(p):
-    return (_xmp_ctl (p, XMP_CTL_GVOL_DEC))
 
 def xmp_seek_time(p, x):
     return (_xmp_ctl (p, XMP_CTL_SEEK_TIME, x))
