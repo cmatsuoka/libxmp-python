@@ -1117,6 +1117,21 @@ except:
     pass
 
 try:
+    XMP_ERROR_FORMAT = 28837
+except:
+    pass
+
+try:
+    XMP_ERROR_LOAD = 28838
+except:
+    pass
+
+try:
+    XMP_ERROR_DEPACK = 28839
+except:
+    pass
+
+try:
     XMP_CHANNEL_SYNTH = (1 << 0)
 except:
     pass
