@@ -970,12 +970,6 @@ if hasattr(_libs['xmp'], 'xmp_release_module'):
     xmp_release_module.argtypes = [xmp_context]
     xmp_release_module.restype = None
 
-if hasattr(_libs['xmp'], '_xmp_ctl'):
-    _func = _libs['xmp']._xmp_ctl
-    _restype = c_int
-    _argtypes = [xmp_context, c_int]
-    _xmp_ctl = _variadic_function(_func,_restype,_argtypes)
-
 if hasattr(_libs['xmp'], 'xmp_player_start'):
     xmp_player_start = _libs['xmp'].xmp_player_start
     xmp_player_start.argtypes = [xmp_context, c_int, c_int]
@@ -1005,6 +999,12 @@ if hasattr(_libs['xmp'], 'xmp_get_format_list'):
     xmp_get_format_list = _libs['xmp'].xmp_get_format_list
     xmp_get_format_list.argtypes = []
     xmp_get_format_list.restype = POINTER(POINTER(c_char))
+
+if hasattr(_libs['xmp'], 'xmp_control'):
+    _func = _libs['xmp'].xmp_control
+    _restype = c_int
+    _argtypes = [xmp_context, c_int]
+    xmp_control = _variadic_function(_func,_restype,_argtypes)
 
 try:
     XMP_NAME_SIZE = 64
@@ -1262,37 +1262,37 @@ except:
     pass
 
 def xmp_next_position(p):
-    return (_xmp_ctl (p, XMP_CTL_POS_NEXT))
+    return (xmp_control (p, XMP_CTL_POS_NEXT))
 
 def xmp_prev_position(p):
-    return (_xmp_ctl (p, XMP_CTL_POS_PREV))
+    return (xmp_control (p, XMP_CTL_POS_PREV))
 
 def xmp_set_position(p, x):
-    return (_xmp_ctl (p, XMP_CTL_POS_SET, x))
+    return (xmp_control (p, XMP_CTL_POS_SET, x))
 
 def xmp_stop_module(p):
-    return (_xmp_ctl (p, XMP_CTL_MOD_STOP))
+    return (xmp_control (p, XMP_CTL_MOD_STOP))
 
 def xmp_restart_module(p):
-    return (_xmp_ctl (p, XMP_CTL_MOD_RESTART))
+    return (xmp_control (p, XMP_CTL_MOD_RESTART))
 
 def xmp_seek_time(p, x):
-    return (_xmp_ctl (p, XMP_CTL_SEEK_TIME, x))
+    return (xmp_control (p, XMP_CTL_SEEK_TIME, x))
 
 def xmp_channel_mute(p, x, y):
-    return (_xmp_ctl (p, XMP_CTL_CH_MUTE, x, y))
+    return (xmp_control (p, XMP_CTL_CH_MUTE, x, y))
 
 def xmp_mixer_amp(p, x):
-    return (_xmp_ctl (p, XMP_CTL_MIXER_AMP, x))
+    return (xmp_control (p, XMP_CTL_MIXER_AMP, x))
 
 def xmp_mixer_mix(p, x):
-    return (_xmp_ctl (p, XMP_CTL_MIXER_MIX, x))
+    return (xmp_control (p, XMP_CTL_MIXER_MIX, x))
 
 def xmp_quirk_fx9(p, x):
-    return (_xmp_ctl (p, XMP_CTL_QUIRK_FX9, x))
+    return (xmp_control (p, XMP_CTL_QUIRK_FX9, x))
 
 def xmp_quirk_fxef(p, x):
-    return (_xmp_ctl (p, XMP_CTL_QUIRK_FXEF, x))
+    return (xmp_control (p, XMP_CTL_QUIRK_FXEF, x))
 
 xmp_channel = struct_xmp_channel
 
