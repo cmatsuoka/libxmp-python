@@ -1167,6 +1167,11 @@ except:
     pass
 
 try:
+    XMP_ENVELOPE_CARRY = (1 << 5)
+except:
+    pass
+
+try:
     XMP_INST_NNA_CUT = 0
 except:
     pass
