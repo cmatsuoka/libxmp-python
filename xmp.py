@@ -633,7 +633,7 @@ struct_xmp_event.__slots__ = [
     'fxp',
     'f2t',
     'f2p',
-    'flag',
+    '_flag',
 ]
 struct_xmp_event._fields_ = [
     ('note', c_ubyte),
@@ -643,7 +643,7 @@ struct_xmp_event._fields_ = [
     ('fxp', c_ubyte),
     ('f2t', c_ubyte),
     ('f2p', c_ubyte),
-    ('flag', c_ubyte),
+    ('_flag', c_ubyte),
 ]
 
 class struct_xmp_track(Structure):
@@ -941,7 +941,12 @@ struct_xmp_module_info._fields_ = [
 xmp_context = c_long
 
 try:
-    xmp_version = (c_uint).in_dll(_libs['xmp'], 'xmp_version')
+    xmp_version = (String).in_dll(_libs['xmp'], 'xmp_version')
+except:
+    pass
+
+try:
+    xmp_vercode = (c_uint).in_dll(_libs['xmp'], 'xmp_vercode')
 except:
     pass
 
@@ -1005,6 +1010,31 @@ if hasattr(_libs['xmp'], 'xmp_control'):
     _restype = c_int
     _argtypes = [xmp_context, c_int]
     xmp_control = _variadic_function(_func,_restype,_argtypes)
+
+try:
+    XMP_VERSION = '4.0.0'
+except:
+    pass
+
+try:
+    XMP_VERCODE = 262144
+except:
+    pass
+
+try:
+    XMP_VER_MAJOR = 4
+except:
+    pass
+
+try:
+    XMP_VER_MINOR = 0
+except:
+    pass
+
+try:
+    XMP_VER_RELEASE = 0
+except:
+    pass
 
 try:
     XMP_NAME_SIZE = 64
