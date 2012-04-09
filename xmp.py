@@ -1012,22 +1012,22 @@ if hasattr(_libs['xmp'], 'xmp_control'):
     xmp_control = _variadic_function(_func,_restype,_argtypes)
 
 try:
-    XMP_VERSION = '4.0.0'
+    XMP_VERSION = '3.9.0'
 except:
     pass
 
 try:
-    XMP_VERCODE = 262144
+    XMP_VERCODE = 198912
 except:
     pass
 
 try:
-    XMP_VER_MAJOR = 4
+    XMP_VER_MAJOR = 3
 except:
     pass
 
 try:
-    XMP_VER_MINOR = 0
+    XMP_VER_MINOR = 9
 except:
     pass
 
@@ -1098,16 +1098,6 @@ except:
 
 try:
     XMP_CTL_MIXER_MIX = 16
-except:
-    pass
-
-try:
-    XMP_CTL_QUIRK_FX9 = 17
-except:
-    pass
-
-try:
-    XMP_CTL_QUIRK_FXEF = 18
 except:
     pass
 
@@ -1317,12 +1307,6 @@ def xmp_mixer_amp(p, x):
 
 def xmp_mixer_mix(p, x):
     return (xmp_control (p, XMP_CTL_MIXER_MIX, x))
-
-def xmp_quirk_fx9(p, x):
-    return (xmp_control (p, XMP_CTL_QUIRK_FX9, x))
-
-def xmp_quirk_fxef(p, x):
-    return (xmp_control (p, XMP_CTL_QUIRK_FXEF, x))
 
 xmp_channel = struct_xmp_channel
 
