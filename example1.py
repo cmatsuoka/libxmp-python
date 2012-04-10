@@ -1,68 +1,91 @@
 #!/usr/bin/python
-#
-# Example 1: A simple modplayer in python using xmp and pyaudio
+"""
+Example 1: A simple modplayer in python using xmp and pyaudio
+"""
 
-import sys, os, xmp
+import sys
+import os
 import pyaudio
+import xmp
 
-class sound:
-	def __init__(self):
-		self._p = p = pyaudio.PyAudio()
-		self._stream = p.open(format = pyaudio.paInt16,
-				channels = 2, rate = 44100, output = True)
+class Sound:
+    """ Sound output manager
 
-	def write(self, buf):
-		self._stream.write(buf)
+    This class uses PyAudio to play sound.
 
-	def close(self):
-		self._stream.close()
-		self._p.terminate()
+    """
+    def __init__(self):
+        self._audio = pyaudio.PyAudio()
+        self._stream = self._audio.open(format = pyaudio.paInt16,
+                channels = 2, rate = 44100, output = True)
+
+    def write(self, buf):
+        """
+        Write to PyAudio sound stream. 
+        """
+        self._stream.write(buf)
+
+    def close(self):
+        """
+        Close stream and free resources.
+        """
+        self._stream.close()
+        self._audio.terminate()
 
 
 def show_info(mod):
-	print "Name: %s" % (mod.name)
-	print "Type: %s" % (mod.type)
-	print "Instruments: %d   Samples: %d" % (mod.ins, mod.smp)
-	for i in range (mod.ins):
-		ins = mod.xxi[i]
-		if len(ins.name.rstrip()) > 0:
-			print(" %2d %-32.32s  " % (i, mod.xxi[i].name))
-	
+    """
+    Display module information.
+    """
+    print "Name: %s" % (mod.name)
+    print "Type: %s" % (mod.type)
+    print "Instruments: %d   Samples: %d" % (mod.ins, mod.smp)
+    for i in range (mod.ins):
+        ins = mod.xxi[i]
+        if len(ins.name.rstrip()) > 0:
+            print(" %2d %-32.32s  " % (i, mod.xxi[i].name))
+    
+def play(filename):
+    """
+    Our mod player
+    """
+    info = xmp.struct_xmp_module_info()
+    
+    player = xmp.Xmp()
+    try:
+        player.loadModule(filename)
+    except IOError, error:
+        sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
+        sys.exit(1)
+    
+    sound = Sound()
+    
+    player.playerStart(44100, 0)
+    player.getInfo(info)
+    
+    mymod = info.mod[0]
+    show_info(mymod)
+    
+    while player.playerFrame():
+        player.getInfo(info)
+        if info.loop_count > 0:
+            break
+    
+        if info.frame == 0:
+            sys.stdout.write(" %3d/%3d  %3d/%3d\r" %
+                (info.order, mymod.len, info.row, info.num_rows))
+            sys.stdout.flush()
+    
+        sound_buffer = player.getBuffer(info)
+        sound.write(sound_buffer)
+    
+    player.playerEnd()
+    sound.close()
+    player.releaseModule()
+
 
 if len(sys.argv) < 2:
-	print "Usage: %s <module>" % (os.path.basename(sys.argv[0]))
-	sys.exit(1)
+    print "Usage: %s <module>" % (os.path.basename(sys.argv[0]))
+    sys.exit(1)
 
-info = xmp.struct_xmp_module_info()
-
-x = xmp.Xmp()
-try:
-	x.loadModule(sys.argv[1])
-except IOError as (errno, strerror):
-	sys.stderr.write("%s: %s\n" % (sys.argv[1], strerror))
-	sys.exit(1)
-
-s = sound()
-
-x.playerStart(44100, 0)
-x.getInfo(info)
-
-mod = info.mod[0];
-show_info(mod)
-
-while x.playerFrame():
-	x.getInfo(info)
-	if info.loop_count > 0:
-		break
-
-	if info.frame == 0:
-		sys.stdout.write(" %3d/%3d  %3d/%3d\r" %
-			(info.order, mod.len, info.row, info.num_rows))
-		sys.stdout.flush();
-
-	buf = x.getBuffer(info)
-	s.write(buf);	
-
-x.playerEnd()
-s.close()
-x.releaseModule()
+play(sys.argv[1])
