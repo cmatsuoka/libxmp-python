@@ -633,7 +633,7 @@ struct_xmp_event.__slots__ = [
     'fxp',
     'f2t',
     'f2p',
-    'flag',
+    '_flag',
 ]
 struct_xmp_event._fields_ = [
     ('note', c_ubyte),
@@ -643,7 +643,7 @@ struct_xmp_event._fields_ = [
     ('fxp', c_ubyte),
     ('f2t', c_ubyte),
     ('f2p', c_ubyte),
-    ('flag', c_ubyte),
+    ('_flag', c_ubyte),
 ]
 
 class struct_xmp_track(Structure):
@@ -941,7 +941,12 @@ struct_xmp_module_info._fields_ = [
 xmp_context = c_long
 
 try:
-    xmp_version = (c_uint).in_dll(_libs['xmp'], 'xmp_version')
+    xmp_version = (String).in_dll(_libs['xmp'], 'xmp_version')
+except:
+    pass
+
+try:
+    xmp_vercode = (c_uint).in_dll(_libs['xmp'], 'xmp_vercode')
 except:
     pass
 
@@ -969,12 +974,6 @@ if hasattr(_libs['xmp'], 'xmp_release_module'):
     xmp_release_module = _libs['xmp'].xmp_release_module
     xmp_release_module.argtypes = [xmp_context]
     xmp_release_module.restype = None
-
-if hasattr(_libs['xmp'], '_xmp_ctl'):
-    _func = _libs['xmp']._xmp_ctl
-    _restype = c_int
-    _argtypes = [xmp_context, c_int]
-    _xmp_ctl = _variadic_function(_func,_restype,_argtypes)
 
 if hasattr(_libs['xmp'], 'xmp_player_start'):
     xmp_player_start = _libs['xmp'].xmp_player_start
@@ -1005,6 +1004,37 @@ if hasattr(_libs['xmp'], 'xmp_get_format_list'):
     xmp_get_format_list = _libs['xmp'].xmp_get_format_list
     xmp_get_format_list.argtypes = []
     xmp_get_format_list.restype = POINTER(POINTER(c_char))
+
+if hasattr(_libs['xmp'], 'xmp_control'):
+    _func = _libs['xmp'].xmp_control
+    _restype = c_int
+    _argtypes = [xmp_context, c_int]
+    xmp_control = _variadic_function(_func,_restype,_argtypes)
+
+try:
+    XMP_VERSION = '3.9.0'
+except:
+    pass
+
+try:
+    XMP_VERCODE = 198912
+except:
+    pass
+
+try:
+    XMP_VER_MAJOR = 3
+except:
+    pass
+
+try:
+    XMP_VER_MINOR = 9
+except:
+    pass
+
+try:
+    XMP_VER_RELEASE = 0
+except:
+    pass
 
 try:
     XMP_NAME_SIZE = 64
@@ -1068,16 +1098,6 @@ except:
 
 try:
     XMP_CTL_MIXER_MIX = 16
-except:
-    pass
-
-try:
-    XMP_CTL_QUIRK_FX9 = 17
-except:
-    pass
-
-try:
-    XMP_CTL_QUIRK_FXEF = 18
 except:
     pass
 
@@ -1163,6 +1183,11 @@ except:
 
 try:
     XMP_ENVELOPE_SLOOP = (1 << 4)
+except:
+    pass
+
+try:
+    XMP_ENVELOPE_CARRY = (1 << 5)
 except:
     pass
 
@@ -1257,37 +1282,31 @@ except:
     pass
 
 def xmp_next_position(p):
-    return (_xmp_ctl (p, XMP_CTL_POS_NEXT))
+    return (xmp_control (p, XMP_CTL_POS_NEXT))
 
 def xmp_prev_position(p):
-    return (_xmp_ctl (p, XMP_CTL_POS_PREV))
+    return (xmp_control (p, XMP_CTL_POS_PREV))
 
 def xmp_set_position(p, x):
-    return (_xmp_ctl (p, XMP_CTL_POS_SET, x))
+    return (xmp_control (p, XMP_CTL_POS_SET, x))
 
 def xmp_stop_module(p):
-    return (_xmp_ctl (p, XMP_CTL_MOD_STOP))
+    return (xmp_control (p, XMP_CTL_MOD_STOP))
 
 def xmp_restart_module(p):
-    return (_xmp_ctl (p, XMP_CTL_MOD_RESTART))
+    return (xmp_control (p, XMP_CTL_MOD_RESTART))
 
 def xmp_seek_time(p, x):
-    return (_xmp_ctl (p, XMP_CTL_SEEK_TIME, x))
+    return (xmp_control (p, XMP_CTL_SEEK_TIME, x))
 
 def xmp_channel_mute(p, x, y):
-    return (_xmp_ctl (p, XMP_CTL_CH_MUTE, x, y))
+    return (xmp_control (p, XMP_CTL_CH_MUTE, x, y))
 
 def xmp_mixer_amp(p, x):
-    return (_xmp_ctl (p, XMP_CTL_MIXER_AMP, x))
+    return (xmp_control (p, XMP_CTL_MIXER_AMP, x))
 
 def xmp_mixer_mix(p, x):
-    return (_xmp_ctl (p, XMP_CTL_MIXER_MIX, x))
-
-def xmp_quirk_fx9(p, x):
-    return (_xmp_ctl (p, XMP_CTL_QUIRK_FX9, x))
-
-def xmp_quirk_fxef(p, x):
-    return (_xmp_ctl (p, XMP_CTL_QUIRK_FXEF, x))
+    return (xmp_control (p, XMP_CTL_MIXER_MIX, x))
 
 xmp_channel = struct_xmp_channel
 
