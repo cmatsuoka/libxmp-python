@@ -16,19 +16,15 @@ class Sound:
     """
     def __init__(self):
         self._audio = pyaudio.PyAudio()
-        self._stream = self._audio.open(format = pyaudio.paInt16,
-                channels = 2, rate = 44100, output = True)
+        self._stream = self._audio.open(format=pyaudio.paInt16, channels=2,
+	                                rate=44100, output=True)
 
     def write(self, buf):
-        """
-        Write to PyAudio sound stream. 
-        """
+        """Write to PyAudio sound stream."""
         self._stream.write(buf)
 
     def close(self):
-        """
-        Close stream and free resources.
-        """
+        """Close stream and free resources."""
         self._stream.close()
         self._audio.terminate()
 
@@ -47,7 +43,7 @@ def show_info(mod):
     
 def play(filename):
     """
-    Our mod player
+    Our mod player.
     """
     info = xmp.struct_xmp_module_info()
     
