@@ -1,5 +1,12 @@
 
-class Xmp:
+class Xmplib:
+	"""A multi format module player
+
+	Xmplib implements a full-featured module player that supports
+	many different module formats including Protracker MOD, Scream
+	Tracker III S3M, Fast Tracker II XM and Impulse Tracker IT modules.
+
+	"""
 	def __init__(self):
 		self._ctx = xmp_create_context()
 

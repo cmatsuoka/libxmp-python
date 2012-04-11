@@ -1,7 +1,7 @@
 '''Wrapper for xmp.h
 
 Generated with:
-ctypesgen/ctypesgen.py -lxmp ../include/xmp.h -o xmp.py --insert-file=interface.py
+ctypesgen/ctypesgen.py -lxmp ../include/xmp.h -o xmplib.py --insert-file=interface.py
 
 Do not modify this file.
 '''
@@ -1339,7 +1339,14 @@ xmp_module_info = struct_xmp_module_info
 # Begin "interface.py"
 
 
-class Xmp:
+class Xmplib:
+	"""A multi format module player
+
+	Xmplib implements a full-featured module player that supports
+	many different module formats including Protracker MOD, Scream
+	Tracker III S3M, Fast Tracker II XM and Impulse Tracker IT modules.
+
+	"""
 	def __init__(self):
 		self._ctx = xmp_create_context()
 
