@@ -1,7 +1,7 @@
 '''Wrapper for xmp.h
 
 Generated with:
-ctypesgen/ctypesgen.py -lxmp ../include/xmp.h -o xmplib.py --insert-file=interface.py
+ctypesgen/ctypesgen.py -lxmp ../include/xmp.h -o libxmp.py --insert-file=interface.py
 
 Do not modify this file.
 '''
@@ -1012,12 +1012,12 @@ if hasattr(_libs['xmp'], 'xmp_control'):
     xmp_control = _variadic_function(_func,_restype,_argtypes)
 
 try:
-    XMP_VERSION = '3.9.0'
+    XMP_VERSION = '3.9.2'
 except:
     pass
 
 try:
-    XMP_VERCODE = 198912
+    XMP_VERCODE = 198914
 except:
     pass
 
@@ -1032,7 +1032,7 @@ except:
     pass
 
 try:
-    XMP_VER_RELEASE = 0
+    XMP_VER_RELEASE = 2
 except:
     pass
 
@@ -1339,10 +1339,10 @@ xmp_module_info = struct_xmp_module_info
 # Begin "interface.py"
 
 
-class Xmplib:
+class Xmp:
 	"""A multi format module player
 
-	Xmplib implements a full-featured module player that supports
+	Xmp implements a full-featured module player that supports
 	many different module formats including Protracker MOD, Scream
 	Tracker III S3M, Fast Tracker II XM and Impulse Tracker IT modules.
 

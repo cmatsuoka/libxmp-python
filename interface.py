@@ -1,8 +1,8 @@
 
-class Xmplib:
+class Xmp:
 	"""A multi format module player
 
-	Xmplib implements a full-featured module player that supports
+	Xmp implements a full-featured module player that supports
 	many different module formats including Protracker MOD, Scream
 	Tracker III S3M, Fast Tracker II XM and Impulse Tracker IT modules.
 
