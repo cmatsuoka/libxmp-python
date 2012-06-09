@@ -1,5 +1,5 @@
 
-class Xmplib:
+class Xmp:
 	"""A multi format module player
 
 	Xmplib implements a full-featured module player that supports

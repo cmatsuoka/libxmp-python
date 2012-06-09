@@ -6,7 +6,7 @@ Example 1: A simple modplayer in python using xmp and pyaudio
 import sys
 import os
 import pyaudio
-import xmplib
+import libxmp
 
 class Sound:
     """ Sound output manager
@@ -45,11 +45,11 @@ def play(filename):
     """
     Our mod player.
     """
-    info = xmplib.struct_xmp_module_info()
+    info = libxmp.struct_xmp_module_info()
     
-    xmp = xmplib.Xmplib()
+    xmp = libxmp.Xmp()
     try:
-        player.loadModule(filename)
+        xmp.loadModule(filename)
     except IOError, error:
         sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
         sys.exit(1)
