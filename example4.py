@@ -5,7 +5,7 @@ Example 4: display pattern data
 
 import sys
 import os
-import libxmp
+import pyxmp
 
 
 def display_pattern(mod, num):
@@ -48,9 +48,9 @@ if len(sys.argv) < 3:
     print "Usage: %s <module> <patnum>" % (os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-info = libxmp.struct_xmp_module_info()
+info = pyxmp.struct_xmp_module_info()
 
-xmp = libxmp.Xmp()
+xmp = pyxmp.Xmp()
 
 try:
     xmp.loadModule(sys.argv[1])

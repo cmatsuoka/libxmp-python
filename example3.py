@@ -6,7 +6,7 @@ Example 3: extract samples to wav files
 import sys
 import os
 import wave
-import libxmp
+import pyxmp
 
 
 def extract_sample(xmp, mod, insnum, num):
@@ -19,7 +19,7 @@ def extract_sample(xmp, mod, insnum, num):
         print "Skip empty sample %d" % (num)
         return
 
-    if sample.flg & libxmp.XMP_SAMPLE_16BIT:
+    if sample.flg & pyxmp.XMP_SAMPLE_16BIT:
         sample_width = 2
         length *= 2
     else:
@@ -44,9 +44,9 @@ if len(sys.argv) < 3:
     print "Usage: %s <module> <insnum>" % (os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-info = libxmp.struct_xmp_module_info()
+info = pyxmp.struct_xmp_module_info()
 
-xmp = libxmp.Xmp()
+xmp = pyxmp.Xmp()
 
 try:
     xmp.loadModule(sys.argv[1])

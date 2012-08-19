@@ -1,7 +1,7 @@
 '''Wrapper for xmp.h
 
 Generated with:
-ctypesgen/ctypesgen.py -lxmp ../include/xmp.h -o libxmp.py --insert-file=interface.py
+ctypesgen/ctypesgen.py -lxmp ../include/xmp.h -o pyxmp.py --insert-file=interface.py
 
 Do not modify this file.
 '''
@@ -1012,12 +1012,12 @@ if hasattr(_libs['xmp'], 'xmp_control'):
     xmp_control = _variadic_function(_func,_restype,_argtypes)
 
 try:
-    XMP_VERSION = '3.9.2'
+    XMP_VERSION = '3.9.4'
 except:
     pass
 
 try:
-    XMP_VERCODE = 198914
+    XMP_VERCODE = 198916
 except:
     pass
 
@@ -1032,7 +1032,7 @@ except:
     pass
 
 try:
-    XMP_VER_RELEASE = 2
+    XMP_VER_RELEASE = 4
 except:
     pass
 
@@ -1102,17 +1102,27 @@ except:
     pass
 
 try:
-    XMP_FORMAT_8BIT = (1 << 0)
+    XMP_MIX_8BIT = (1 << 0)
 except:
     pass
 
 try:
-    XMP_FORMAT_UNSIGNED = (1 << 1)
+    XMP_MIX_UNSIGNED = (1 << 1)
 except:
     pass
 
 try:
-    XMP_FORMAT_MONO = (1 << 2)
+    XMP_MIX_MONO = (1 << 2)
+except:
+    pass
+
+try:
+    XMP_MIX_NEAREST = (1 << 3)
+except:
+    pass
+
+try:
+    XMP_MIX_NOFILTER = (1 << 4)
 except:
     pass
 
@@ -1137,17 +1147,32 @@ except:
     pass
 
 try:
-    XMP_ERROR_FORMAT = 28837
+    XMP_END = 1
 except:
     pass
 
 try:
-    XMP_ERROR_LOAD = 28838
+    XMP_ERROR_INTERNAL = 2
 except:
     pass
 
 try:
-    XMP_ERROR_DEPACK = 28839
+    XMP_ERROR_FORMAT = 3
+except:
+    pass
+
+try:
+    XMP_ERROR_LOAD = 4
+except:
+    pass
+
+try:
+    XMP_ERROR_DEPACK = 5
+except:
+    pass
+
+try:
+    XMP_ERROR_SYSTEM = 6
 except:
     pass
 
