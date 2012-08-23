@@ -1005,11 +1005,50 @@ if hasattr(_libs['xmp'], 'xmp_get_format_list'):
     xmp_get_format_list.argtypes = []
     xmp_get_format_list.restype = POINTER(POINTER(c_char))
 
-if hasattr(_libs['xmp'], 'xmp_control'):
-    _func = _libs['xmp'].xmp_control
-    _restype = c_int
-    _argtypes = [xmp_context, c_int]
-    xmp_control = _variadic_function(_func,_restype,_argtypes)
+if hasattr(_libs['xmp'], 'xmp_next_position'):
+    xmp_next_position = _libs['xmp'].xmp_next_position
+    xmp_next_position.argtypes = [xmp_context]
+    xmp_next_position.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_prev_position'):
+    xmp_prev_position = _libs['xmp'].xmp_prev_position
+    xmp_prev_position.argtypes = [xmp_context]
+    xmp_prev_position.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_set_position'):
+    xmp_set_position = _libs['xmp'].xmp_set_position
+    xmp_set_position.argtypes = [xmp_context, c_int]
+    xmp_set_position.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_stop_module'):
+    xmp_stop_module = _libs['xmp'].xmp_stop_module
+    xmp_stop_module.argtypes = [xmp_context]
+    xmp_stop_module.restype = None
+
+if hasattr(_libs['xmp'], 'xmp_restart_module'):
+    xmp_restart_module = _libs['xmp'].xmp_restart_module
+    xmp_restart_module.argtypes = [xmp_context]
+    xmp_restart_module.restype = None
+
+if hasattr(_libs['xmp'], 'xmp_seek_time'):
+    xmp_seek_time = _libs['xmp'].xmp_seek_time
+    xmp_seek_time.argtypes = [xmp_context, c_int]
+    xmp_seek_time.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_channel_mute'):
+    xmp_channel_mute = _libs['xmp'].xmp_channel_mute
+    xmp_channel_mute.argtypes = [xmp_context, c_int, c_int]
+    xmp_channel_mute.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_mixer_amp'):
+    xmp_mixer_amp = _libs['xmp'].xmp_mixer_amp
+    xmp_mixer_amp.argtypes = [xmp_context, c_int]
+    xmp_mixer_amp.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_mixer_mix'):
+    xmp_mixer_mix = _libs['xmp'].xmp_mixer_mix
+    xmp_mixer_mix.argtypes = [xmp_context, c_int]
+    xmp_mixer_mix.restype = c_int
 
 try:
     XMP_VERSION = '3.9.4'
@@ -1053,51 +1092,6 @@ except:
 
 try:
     XMP_KEY_FADE = 131
-except:
-    pass
-
-try:
-    XMP_CTL_POS_NEXT = 0
-except:
-    pass
-
-try:
-    XMP_CTL_POS_PREV = 1
-except:
-    pass
-
-try:
-    XMP_CTL_POS_SET = 2
-except:
-    pass
-
-try:
-    XMP_CTL_MOD_STOP = 3
-except:
-    pass
-
-try:
-    XMP_CTL_MOD_RESTART = 4
-except:
-    pass
-
-try:
-    XMP_CTL_SEEK_TIME = 7
-except:
-    pass
-
-try:
-    XMP_CTL_CH_MUTE = 8
-except:
-    pass
-
-try:
-    XMP_CTL_MIXER_AMP = 9
-except:
-    pass
-
-try:
-    XMP_CTL_MIXER_MIX = 16
 except:
     pass
 
@@ -1305,33 +1299,6 @@ try:
     XMP_PERIOD_BASE = 6847
 except:
     pass
-
-def xmp_next_position(p):
-    return (xmp_control (p, XMP_CTL_POS_NEXT))
-
-def xmp_prev_position(p):
-    return (xmp_control (p, XMP_CTL_POS_PREV))
-
-def xmp_set_position(p, x):
-    return (xmp_control (p, XMP_CTL_POS_SET, x))
-
-def xmp_stop_module(p):
-    return (xmp_control (p, XMP_CTL_MOD_STOP))
-
-def xmp_restart_module(p):
-    return (xmp_control (p, XMP_CTL_MOD_RESTART))
-
-def xmp_seek_time(p, x):
-    return (xmp_control (p, XMP_CTL_SEEK_TIME, x))
-
-def xmp_channel_mute(p, x, y):
-    return (xmp_control (p, XMP_CTL_CH_MUTE, x, y))
-
-def xmp_mixer_amp(p, x):
-    return (xmp_control (p, XMP_CTL_MIXER_AMP, x))
-
-def xmp_mixer_mix(p, x):
-    return (xmp_control (p, XMP_CTL_MIXER_MIX, x))
 
 xmp_channel = struct_xmp_channel
 
