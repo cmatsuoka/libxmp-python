@@ -804,6 +804,7 @@ class struct_xmp_module(Structure):
 struct_xmp_module.__slots__ = [
     'name',
     'type',
+    'md5',
     'pat',
     'trk',
     'chn',
@@ -824,6 +825,7 @@ struct_xmp_module.__slots__ = [
 struct_xmp_module._fields_ = [
     ('name', c_char * 64),
     ('type', c_char * 64),
+    ('md5', c_ubyte * 16),
     ('pat', c_int),
     ('trk', c_int),
     ('chn', c_int),
@@ -886,7 +888,7 @@ class struct_xmp_module_info(Structure):
     pass
 
 struct_xmp_module_info.__slots__ = [
-    'order',
+    'pos',
     'pattern',
     'row',
     'num_rows',
@@ -912,7 +914,7 @@ struct_xmp_module_info.__slots__ = [
     'seq_data',
 ]
 struct_xmp_module_info._fields_ = [
-    ('order', c_int),
+    ('pos', c_int),
     ('pattern', c_int),
     ('row', c_int),
     ('num_rows', c_int),
@@ -1040,38 +1042,43 @@ if hasattr(_libs['xmp'], 'xmp_channel_mute'):
     xmp_channel_mute.argtypes = [xmp_context, c_int, c_int]
     xmp_channel_mute.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_mixer_amp'):
-    xmp_mixer_amp = _libs['xmp'].xmp_mixer_amp
-    xmp_mixer_amp.argtypes = [xmp_context, c_int]
-    xmp_mixer_amp.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_channel_vol'):
+    xmp_channel_vol = _libs['xmp'].xmp_channel_vol
+    xmp_channel_vol.argtypes = [xmp_context, c_int, c_int]
+    xmp_channel_vol.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_mixer_mix'):
-    xmp_mixer_mix = _libs['xmp'].xmp_mixer_mix
-    xmp_mixer_mix.argtypes = [xmp_context, c_int]
-    xmp_mixer_mix.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_mixer_set'):
+    xmp_mixer_set = _libs['xmp'].xmp_mixer_set
+    xmp_mixer_set.argtypes = [xmp_context, c_int, c_int]
+    xmp_mixer_set.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_mixer_get'):
+    xmp_mixer_get = _libs['xmp'].xmp_mixer_get
+    xmp_mixer_get.argtypes = [xmp_context, c_int]
+    xmp_mixer_get.restype = c_int
 
 try:
-    XMP_VERSION = '3.9.4'
+    XMP_VERSION = '4.0.0'
 except:
     pass
 
 try:
-    XMP_VERCODE = 198916
+    XMP_VERCODE = 262144
 except:
     pass
 
 try:
-    XMP_VER_MAJOR = 3
+    XMP_VER_MAJOR = 4
 except:
     pass
 
 try:
-    XMP_VER_MINOR = 9
+    XMP_VER_MINOR = 0
 except:
     pass
 
 try:
-    XMP_VER_RELEASE = 4
+    XMP_VER_RELEASE = 0
 except:
     pass
 
@@ -1096,27 +1103,57 @@ except:
     pass
 
 try:
-    XMP_MIX_8BIT = (1 << 0)
+    XMP_FORMAT_8BIT = (1 << 0)
 except:
     pass
 
 try:
-    XMP_MIX_UNSIGNED = (1 << 1)
+    XMP_FORMAT_UNSIGNED = (1 << 1)
 except:
     pass
 
 try:
-    XMP_MIX_MONO = (1 << 2)
+    XMP_FORMAT_MONO = (1 << 2)
 except:
     pass
 
 try:
-    XMP_MIX_NEAREST = (1 << 3)
+    XMP_MIXER_AMP = 0
 except:
     pass
 
 try:
-    XMP_MIX_NOFILTER = (1 << 4)
+    XMP_MIXER_MIX = 1
+except:
+    pass
+
+try:
+    XMP_MIXER_INTERP = 2
+except:
+    pass
+
+try:
+    XMP_MIXER_DSP = 3
+except:
+    pass
+
+try:
+    XMP_INTERP_NEAREST = 0
+except:
+    pass
+
+try:
+    XMP_INTERP_LINEAR = 1
+except:
+    pass
+
+try:
+    XMP_DSP_LOWPASS = (1 << 0)
+except:
+    pass
+
+try:
+    XMP_DSP_ALL = XMP_DSP_LOWPASS
 except:
     pass
 
@@ -1167,6 +1204,11 @@ except:
 
 try:
     XMP_ERROR_SYSTEM = 6
+except:
+    pass
+
+try:
+    XMP_ERROR_INVALID = 7
 except:
     pass
 
