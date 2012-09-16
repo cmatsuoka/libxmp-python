@@ -45,7 +45,7 @@ def play(filename):
     """
     Our mod player.
     """
-    info = pyxmp.struct_xmp_module_info()
+    info = pyxmp.struct_xmp_frame_info()
     
     xmp = pyxmp.Xmp()
     try:
@@ -56,26 +56,26 @@ def play(filename):
     
     sound = Sound()
     
-    xmp.playerStart(44100, 0)
-    xmp.getInfo(info)
+    xmp.startPlayer(44100, 0)
+    xmp.getFrameInfo(info)
     
     mymod = info.mod[0]
     show_info(mymod)
     
-    while xmp.playerFrame():
-        xmp.getInfo(info)
+    while xmp.playFrame():
+        xmp.getFrameInfo(info)
         if info.loop_count > 0:
             break
     
         if info.frame == 0:
             sys.stdout.write(" %3d/%3d  %3d/%3d\r" %
-                (info.order, mymod.len, info.row, info.num_rows))
+                (info.pos, mymod.len, info.row, info.num_rows))
             sys.stdout.flush()
     
         sound_buffer = xmp.getBuffer(info)
         sound.write(sound_buffer)
     
-    xmp.playerEnd()
+    xmp.endPlayer()
     sound.close()
     xmp.releaseModule()
 

@@ -714,7 +714,6 @@ struct_xmp_subinstrument.__slots__ = [
     'dca',
     'ifc',
     'ifr',
-    'hld',
 ]
 struct_xmp_subinstrument._fields_ = [
     ('vol', c_int),
@@ -733,7 +732,6 @@ struct_xmp_subinstrument._fields_ = [
     ('dca', c_int),
     ('ifc', c_int),
     ('ifr', c_int),
-    ('hld', c_int),
 ]
 
 class struct_xmp_instrument(Structure):
@@ -747,10 +745,9 @@ struct_xmp_instrument.__slots__ = [
     'aei',
     'pei',
     'fei',
-    'vts',
-    'wts',
     'map',
     'sub',
+    'extra',
 ]
 struct_xmp_instrument._fields_ = [
     ('name', c_char * 32),
@@ -760,10 +757,9 @@ struct_xmp_instrument._fields_ = [
     ('aei', struct_xmp_envelope),
     ('pei', struct_xmp_envelope),
     ('fei', struct_xmp_envelope),
-    ('vts', c_int),
-    ('wts', c_int),
     ('map', struct_anon_1 * 121),
     ('sub', POINTER(struct_xmp_subinstrument)),
+    ('extra', POINTER(None)),
 ]
 
 class struct_xmp_sample(Structure):
@@ -884,10 +880,10 @@ struct_xmp_channel_info._fields_ = [
     ('event', struct_xmp_event),
 ]
 
-class struct_xmp_module_info(Structure):
+class struct_xmp_frame_info(Structure):
     pass
 
-struct_xmp_module_info.__slots__ = [
+struct_xmp_frame_info.__slots__ = [
     'pos',
     'pattern',
     'row',
@@ -913,7 +909,7 @@ struct_xmp_module_info.__slots__ = [
     'num_sequences',
     'seq_data',
 ]
-struct_xmp_module_info._fields_ = [
+struct_xmp_frame_info._fields_ = [
     ('pos', c_int),
     ('pattern', c_int),
     ('row', c_int),
@@ -957,15 +953,15 @@ if hasattr(_libs['xmp'], 'xmp_create_context'):
     xmp_create_context.argtypes = []
     xmp_create_context.restype = xmp_context
 
-if hasattr(_libs['xmp'], 'xmp_test_module'):
-    xmp_test_module = _libs['xmp'].xmp_test_module
-    xmp_test_module.argtypes = [String, POINTER(struct_xmp_test_info)]
-    xmp_test_module.restype = c_int
-
 if hasattr(_libs['xmp'], 'xmp_free_context'):
     xmp_free_context = _libs['xmp'].xmp_free_context
     xmp_free_context.argtypes = [xmp_context]
     xmp_free_context.restype = None
+
+if hasattr(_libs['xmp'], 'xmp_test_module'):
+    xmp_test_module = _libs['xmp'].xmp_test_module
+    xmp_test_module.argtypes = [String, POINTER(struct_xmp_test_info)]
+    xmp_test_module.restype = c_int
 
 if hasattr(_libs['xmp'], 'xmp_load_module'):
     xmp_load_module = _libs['xmp'].xmp_load_module
@@ -977,25 +973,25 @@ if hasattr(_libs['xmp'], 'xmp_release_module'):
     xmp_release_module.argtypes = [xmp_context]
     xmp_release_module.restype = None
 
-if hasattr(_libs['xmp'], 'xmp_player_start'):
-    xmp_player_start = _libs['xmp'].xmp_player_start
-    xmp_player_start.argtypes = [xmp_context, c_int, c_int]
-    xmp_player_start.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_start_player'):
+    xmp_start_player = _libs['xmp'].xmp_start_player
+    xmp_start_player.argtypes = [xmp_context, c_int, c_int]
+    xmp_start_player.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_player_frame'):
-    xmp_player_frame = _libs['xmp'].xmp_player_frame
-    xmp_player_frame.argtypes = [xmp_context]
-    xmp_player_frame.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_play_frame'):
+    xmp_play_frame = _libs['xmp'].xmp_play_frame
+    xmp_play_frame.argtypes = [xmp_context]
+    xmp_play_frame.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_player_get_info'):
-    xmp_player_get_info = _libs['xmp'].xmp_player_get_info
-    xmp_player_get_info.argtypes = [xmp_context, POINTER(struct_xmp_module_info)]
-    xmp_player_get_info.restype = None
+if hasattr(_libs['xmp'], 'xmp_get_frame_info'):
+    xmp_get_frame_info = _libs['xmp'].xmp_get_frame_info
+    xmp_get_frame_info.argtypes = [xmp_context, POINTER(struct_xmp_frame_info)]
+    xmp_get_frame_info.restype = None
 
-if hasattr(_libs['xmp'], 'xmp_player_end'):
-    xmp_player_end = _libs['xmp'].xmp_player_end
-    xmp_player_end.argtypes = [xmp_context]
-    xmp_player_end.restype = None
+if hasattr(_libs['xmp'], 'xmp_end_player'):
+    xmp_end_player = _libs['xmp'].xmp_end_player
+    xmp_end_player.argtypes = [xmp_context]
+    xmp_end_player.restype = None
 
 if hasattr(_libs['xmp'], 'xmp_inject_event'):
     xmp_inject_event = _libs['xmp'].xmp_inject_event
@@ -1047,15 +1043,15 @@ if hasattr(_libs['xmp'], 'xmp_channel_vol'):
     xmp_channel_vol.argtypes = [xmp_context, c_int, c_int]
     xmp_channel_vol.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_mixer_set'):
-    xmp_mixer_set = _libs['xmp'].xmp_mixer_set
-    xmp_mixer_set.argtypes = [xmp_context, c_int, c_int]
-    xmp_mixer_set.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_set_mixer'):
+    xmp_set_mixer = _libs['xmp'].xmp_set_mixer
+    xmp_set_mixer.argtypes = [xmp_context, c_int, c_int]
+    xmp_set_mixer.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_mixer_get'):
-    xmp_mixer_get = _libs['xmp'].xmp_mixer_get
-    xmp_mixer_get.argtypes = [xmp_context, c_int]
-    xmp_mixer_get.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_get_mixer'):
+    xmp_get_mixer = _libs['xmp'].xmp_get_mixer
+    xmp_get_mixer.argtypes = [xmp_context, c_int]
+    xmp_get_mixer.restype = c_int
 
 try:
     XMP_VERSION = '4.0.0'
@@ -1144,6 +1140,11 @@ except:
 
 try:
     XMP_INTERP_LINEAR = 1
+except:
+    pass
+
+try:
+    XMP_INTERP_SPLINE = 2
 except:
     pass
 
@@ -1366,7 +1367,7 @@ xmp_test_info = struct_xmp_test_info
 
 xmp_channel_info = struct_xmp_channel_info
 
-xmp_module_info = struct_xmp_module_info
+xmp_frame_info = struct_xmp_frame_info
 
 # Begin inserted files
 
@@ -1405,21 +1406,21 @@ class Xmp:
 	def releaseModule(self):
 		xmp_release_module(self._ctx)
 
-	def playerStart(self, freq, mode):
-		return xmp_player_start(self._ctx, freq, mode)
+	def startPlayer(self, freq, mode):
+		return xmp_start_player(self._ctx, freq, mode)
 
-	def getInfo(self, info):
-		return xmp_player_get_info(self._ctx, pointer(info))
+	def getFrameInfo(self, info):
+		return xmp_get_frame_info(self._ctx, pointer(info))
 
 	def getBuffer(self, info):
 		buf = ctypes.cast(info.buffer, POINTER(c_int8))
 		return ctypes.string_at(buf, info.buffer_size);
 
-	def playerFrame(self):
-		return xmp_player_frame(self._ctx) == 0
+	def playFrame(self):
+		return xmp_play_frame(self._ctx) == 0
 
-	def playerEnd(self):
-		xmp_player_end(self._ctx)
+	def endPlayer(self):
+		xmp_end_player(self._ctx)
 
 	def getSample(self, mod, num):
 		sample = mod.xxs[num]

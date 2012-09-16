@@ -31,21 +31,21 @@ class Xmp:
 	def releaseModule(self):
 		xmp_release_module(self._ctx)
 
-	def playerStart(self, freq, mode):
-		return xmp_player_start(self._ctx, freq, mode)
+	def startPlayer(self, freq, mode):
+		return xmp_start_player(self._ctx, freq, mode)
 
-	def getInfo(self, info):
-		return xmp_player_get_info(self._ctx, pointer(info))
+	def getFrameInfo(self, info):
+		return xmp_get_frame_info(self._ctx, pointer(info))
 
 	def getBuffer(self, info):
 		buf = ctypes.cast(info.buffer, POINTER(c_int8))
 		return ctypes.string_at(buf, info.buffer_size);
 
-	def playerFrame(self):
-		return xmp_player_frame(self._ctx) == 0
+	def playFrame(self):
+		return xmp_play_frame(self._ctx) == 0
 
-	def playerEnd(self):
-		xmp_player_end(self._ctx)
+	def endPlayer(self):
+		xmp_end_player(self._ctx)
 
 	def getSample(self, mod, num):
 		sample = mod.xxs[num]
