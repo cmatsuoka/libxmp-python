@@ -45,39 +45,40 @@ def play(filename):
     """
     Our mod player.
     """
-    info = pyxmp.struct_xmp_frame_info()
+    finfo = pyxmp.struct_xmp_frame_info()
+    minfo = pyxmp.struct_xmp_module_info()
     
     xmp = pyxmp.Xmp()
     try:
-        xmp.loadModule(filename)
+        xmp.load_module(filename)
     except IOError, error:
         sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
         sys.exit(1)
     
     sound = Sound()
     
-    xmp.startPlayer(44100, 0)
-    xmp.getFrameInfo(info)
+    xmp.start_player(44100, 0)
+    xmp.get_module_info(minfo)
     
-    mymod = info.mod[0]
+    mymod = minfo.mod[0]
     show_info(mymod)
     
-    while xmp.playFrame():
-        xmp.getFrameInfo(info)
-        if info.loop_count > 0:
+    while xmp.play_frame():
+        xmp.get_frame_info(finfo)
+        if finfo.loop_count > 0:
             break
     
-        if info.frame == 0:
+        if finfo.frame == 0:
             sys.stdout.write(" %3d/%3d  %3d/%3d\r" %
-                (info.pos, mymod.len, info.row, info.num_rows))
+                (finfo.pos, mymod.len, finfo.row, finfo.num_rows))
             sys.stdout.flush()
     
-        sound_buffer = xmp.getBuffer(info)
+        sound_buffer = xmp.get_buffer(finfo)
         sound.write(sound_buffer)
     
-    xmp.endPlayer()
+    xmp.end_player()
     sound.close()
-    xmp.releaseModule()
+    xmp.release_module()
 
 
 if len(sys.argv) < 2:

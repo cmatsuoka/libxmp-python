@@ -18,36 +18,39 @@ class Xmp:
 		xmp_free_context(self._ctx)
 		self._ctx = None
 
-	def testModule(self, path, info):
+	def test_module(self, path, info):
 		code = xmp_test_module(path, pointer(info))
 		return (code == 0)
 
-	def loadModule(self, path):
+	def load_module(self, path):
 		code = xmp_load_module(self._ctx, path)
 		if (code < 0):
 			code = -code
 			raise IOError(code, os.strerror(code))
 	
-	def releaseModule(self):
+	def release_module(self):
 		xmp_release_module(self._ctx)
 
-	def startPlayer(self, freq, mode):
+	def start_player(self, freq, mode):
 		return xmp_start_player(self._ctx, freq, mode)
 
-	def getFrameInfo(self, info):
+	def get_frame_info(self, info):
 		return xmp_get_frame_info(self._ctx, pointer(info))
 
-	def getBuffer(self, info):
+	def get_module_info(self, info):
+		return xmp_get_module_info(self._ctx, pointer(info))
+
+	def get_buffer(self, info):
 		buf = ctypes.cast(info.buffer, POINTER(c_int8))
 		return ctypes.string_at(buf, info.buffer_size);
 
-	def playFrame(self):
+	def play_frame(self):
 		return xmp_play_frame(self._ctx) == 0
 
-	def endPlayer(self):
+	def end_player(self):
 		xmp_end_player(self._ctx)
 
-	def getSample(self, mod, num):
+	def get_sample(self, mod, num):
 		sample = mod.xxs[num]
 		buf = ctypes.cast(sample.data, POINTER(c_int8))
 

@@ -16,7 +16,7 @@ info = pyxmp.struct_xmp_test_info()
 xmp = pyxmp.Xmp()
 
 for name in sys.argv[1:]:
-    if xmp.testModule(name, info):
+    if xmp.test_module(name, info):
         print "%-25.25s %-25.25s %s" % (name, info.type, info.name)
 
 

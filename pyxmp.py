@@ -800,7 +800,6 @@ class struct_xmp_module(Structure):
 struct_xmp_module.__slots__ = [
     'name',
     'type',
-    'md5',
     'pat',
     'trk',
     'chn',
@@ -821,7 +820,6 @@ struct_xmp_module.__slots__ = [
 struct_xmp_module._fields_ = [
     ('name', c_char * 64),
     ('type', c_char * 64),
-    ('md5', c_ubyte * 16),
     ('pat', c_int),
     ('trk', c_int),
     ('chn', c_int),
@@ -850,6 +848,26 @@ struct_xmp_test_info.__slots__ = [
 struct_xmp_test_info._fields_ = [
     ('name', c_char * 64),
     ('type', c_char * 64),
+]
+
+class struct_xmp_module_info(Structure):
+    pass
+
+struct_xmp_module_info.__slots__ = [
+    'md5',
+    'vol_base',
+    'mod',
+    'comment',
+    'num_sequences',
+    'seq_data',
+]
+struct_xmp_module_info._fields_ = [
+    ('md5', c_ubyte * 16),
+    ('vol_base', c_int),
+    ('mod', POINTER(struct_xmp_module)),
+    ('comment', String),
+    ('num_sequences', c_int),
+    ('seq_data', POINTER(struct_xmp_sequence)),
 ]
 
 class struct_xmp_channel_info(Structure):
@@ -892,8 +910,8 @@ struct_xmp_frame_info.__slots__ = [
     'speed',
     'bpm',
     'time',
-    'frame_time',
     'total_time',
+    'frame_time',
     'buffer',
     'buffer_size',
     'total_size',
@@ -901,13 +919,8 @@ struct_xmp_frame_info.__slots__ = [
     'loop_count',
     'virt_channels',
     'virt_used',
-    'vol_base',
-    'channel_info',
-    'mod',
-    'comment',
     'sequence',
-    'num_sequences',
-    'seq_data',
+    'channel_info',
 ]
 struct_xmp_frame_info._fields_ = [
     ('pos', c_int),
@@ -918,8 +931,8 @@ struct_xmp_frame_info._fields_ = [
     ('speed', c_int),
     ('bpm', c_int),
     ('time', c_int),
-    ('frame_time', c_int),
     ('total_time', c_int),
+    ('frame_time', c_int),
     ('buffer', POINTER(None)),
     ('buffer_size', c_int),
     ('total_size', c_int),
@@ -927,13 +940,8 @@ struct_xmp_frame_info._fields_ = [
     ('loop_count', c_int),
     ('virt_channels', c_int),
     ('virt_used', c_int),
-    ('vol_base', c_int),
-    ('channel_info', struct_xmp_channel_info * 64),
-    ('mod', POINTER(struct_xmp_module)),
-    ('comment', String),
     ('sequence', c_int),
-    ('num_sequences', c_int),
-    ('seq_data', POINTER(struct_xmp_sequence)),
+    ('channel_info', struct_xmp_channel_info * 64),
 ]
 
 xmp_context = c_long
@@ -968,6 +976,11 @@ if hasattr(_libs['xmp'], 'xmp_load_module'):
     xmp_load_module.argtypes = [xmp_context, String]
     xmp_load_module.restype = c_int
 
+if hasattr(_libs['xmp'], 'xmp_scan_module'):
+    xmp_scan_module = _libs['xmp'].xmp_scan_module
+    xmp_scan_module.argtypes = [xmp_context]
+    xmp_scan_module.restype = None
+
 if hasattr(_libs['xmp'], 'xmp_release_module'):
     xmp_release_module = _libs['xmp'].xmp_release_module
     xmp_release_module.argtypes = [xmp_context]
@@ -997,6 +1010,11 @@ if hasattr(_libs['xmp'], 'xmp_inject_event'):
     xmp_inject_event = _libs['xmp'].xmp_inject_event
     xmp_inject_event.argtypes = [xmp_context, c_int, POINTER(struct_xmp_event)]
     xmp_inject_event.restype = None
+
+if hasattr(_libs['xmp'], 'xmp_get_module_info'):
+    xmp_get_module_info = _libs['xmp'].xmp_get_module_info
+    xmp_get_module_info.argtypes = [xmp_context, POINTER(struct_xmp_module_info)]
+    xmp_get_module_info.restype = None
 
 if hasattr(_libs['xmp'], 'xmp_get_format_list'):
     xmp_get_format_list = _libs['xmp'].xmp_get_format_list
@@ -1043,15 +1061,15 @@ if hasattr(_libs['xmp'], 'xmp_channel_vol'):
     xmp_channel_vol.argtypes = [xmp_context, c_int, c_int]
     xmp_channel_vol.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_set_mixer'):
-    xmp_set_mixer = _libs['xmp'].xmp_set_mixer
-    xmp_set_mixer.argtypes = [xmp_context, c_int, c_int]
-    xmp_set_mixer.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_set_player'):
+    xmp_set_player = _libs['xmp'].xmp_set_player
+    xmp_set_player.argtypes = [xmp_context, c_int, c_int]
+    xmp_set_player.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_get_mixer'):
-    xmp_get_mixer = _libs['xmp'].xmp_get_mixer
-    xmp_get_mixer.argtypes = [xmp_context, c_int]
-    xmp_get_mixer.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_get_player'):
+    xmp_get_player = _libs['xmp'].xmp_get_player
+    xmp_get_player.argtypes = [xmp_context, c_int]
+    xmp_get_player.restype = c_int
 
 try:
     XMP_VERSION = '4.0.0'
@@ -1114,22 +1132,27 @@ except:
     pass
 
 try:
-    XMP_MIXER_AMP = 0
+    XMP_PLAYER_AMP = 0
 except:
     pass
 
 try:
-    XMP_MIXER_MIX = 1
+    XMP_PLAYER_MIX = 1
 except:
     pass
 
 try:
-    XMP_MIXER_INTERP = 2
+    XMP_PLAYER_INTERP = 2
 except:
     pass
 
 try:
-    XMP_MIXER_DSP = 3
+    XMP_PLAYER_DSP = 3
+except:
+    pass
+
+try:
+    XMP_PLAYER_TIMING = 4
 except:
     pass
 
@@ -1155,6 +1178,11 @@ except:
 
 try:
     XMP_DSP_ALL = XMP_DSP_LOWPASS
+except:
+    pass
+
+try:
+    XMP_TIMING_VBLANK = (1 << 0)
 except:
     pass
 
@@ -1365,6 +1393,8 @@ xmp_module = struct_xmp_module
 
 xmp_test_info = struct_xmp_test_info
 
+xmp_module_info = struct_xmp_module_info
+
 xmp_channel_info = struct_xmp_channel_info
 
 xmp_frame_info = struct_xmp_frame_info
@@ -1393,36 +1423,39 @@ class Xmp:
 		xmp_free_context(self._ctx)
 		self._ctx = None
 
-	def testModule(self, path, info):
+	def test_module(self, path, info):
 		code = xmp_test_module(path, pointer(info))
 		return (code == 0)
 
-	def loadModule(self, path):
+	def load_module(self, path):
 		code = xmp_load_module(self._ctx, path)
 		if (code < 0):
 			code = -code
 			raise IOError(code, os.strerror(code))
 	
-	def releaseModule(self):
+	def release_module(self):
 		xmp_release_module(self._ctx)
 
-	def startPlayer(self, freq, mode):
+	def start_player(self, freq, mode):
 		return xmp_start_player(self._ctx, freq, mode)
 
-	def getFrameInfo(self, info):
+	def get_frame_info(self, info):
 		return xmp_get_frame_info(self._ctx, pointer(info))
 
-	def getBuffer(self, info):
+	def get_module_info(self, info):
+		return xmp_get_module_info(self._ctx, pointer(info))
+
+	def get_buffer(self, info):
 		buf = ctypes.cast(info.buffer, POINTER(c_int8))
 		return ctypes.string_at(buf, info.buffer_size);
 
-	def playFrame(self):
+	def play_frame(self):
 		return xmp_play_frame(self._ctx) == 0
 
-	def endPlayer(self):
+	def end_player(self):
 		xmp_end_player(self._ctx)
 
-	def getSample(self, mod, num):
+	def get_sample(self, mod, num):
 		sample = mod.xxs[num]
 		buf = ctypes.cast(sample.data, POINTER(c_int8))
 
