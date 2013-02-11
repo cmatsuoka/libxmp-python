@@ -1152,7 +1152,7 @@ except:
     pass
 
 try:
-    XMP_PLAYER_TIMING = 4
+    XMP_PLAYER_FLAGS = 4
 except:
     pass
 
@@ -1182,7 +1182,17 @@ except:
     pass
 
 try:
-    XMP_TIMING_VBLANK = (1 << 0)
+    XMP_FLAGS_VBLANK = (1 << 0)
+except:
+    pass
+
+try:
+    XMP_FLAGS_FX9BUG = (1 << 1)
+except:
+    pass
+
+try:
+    XMP_FLAGS_FIXLOOP = (1 << 2)
 except:
     pass
 
