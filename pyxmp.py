@@ -1071,6 +1071,11 @@ if hasattr(_libs['xmp'], 'xmp_get_player'):
     xmp_get_player.argtypes = [xmp_context, c_int]
     xmp_get_player.restype = c_int
 
+if hasattr(_libs['xmp'], 'xmp_set_instrument_path'):
+    xmp_set_instrument_path = _libs['xmp'].xmp_set_instrument_path
+    xmp_set_instrument_path.argtypes = [xmp_context, String]
+    xmp_set_instrument_path.restype = c_int
+
 try:
     XMP_VERSION = '4.0.0'
 except:
