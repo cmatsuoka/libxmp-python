@@ -1222,6 +1222,21 @@ except:
     pass
 
 try:
+    XMP_MAX_SRATE = 48000
+except:
+    pass
+
+try:
+    XMP_MIN_BPM = 20
+except:
+    pass
+
+try:
+    XMP_MAX_FRAMESIZE = (((5 * XMP_MAX_SRATE) * 2) / XMP_MIN_BPM)
+except:
+    pass
+
+try:
     XMP_END = 1
 except:
     pass
