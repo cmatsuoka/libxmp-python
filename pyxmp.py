@@ -1077,12 +1077,12 @@ if hasattr(_libs['xmp'], 'xmp_set_instrument_path'):
     xmp_set_instrument_path.restype = c_int
 
 try:
-    XMP_VERSION = '4.0.0'
+    XMP_VERSION = '4.0.1'
 except:
     pass
 
 try:
-    XMP_VERCODE = 262144
+    XMP_VERCODE = 262145
 except:
     pass
 
@@ -1097,7 +1097,7 @@ except:
     pass
 
 try:
-    XMP_VER_RELEASE = 0
+    XMP_VER_RELEASE = 1
 except:
     pass
 
