@@ -6,6 +6,8 @@ Example 1: A simple modplayer in python using xmp and pyaudio
 import sys
 import os
 import pyaudio
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pyxmp
 
 class Sound:

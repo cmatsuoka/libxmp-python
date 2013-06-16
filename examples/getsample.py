@@ -6,6 +6,8 @@ Example 3: extract samples to wav files
 import sys
 import os
 import wave
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pyxmp
 
 

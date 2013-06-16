@@ -5,6 +5,8 @@ Example 2: identify module files
 
 import sys
 import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pyxmp
 
 if len(sys.argv) < 2:
