@@ -1,7 +1,7 @@
 '''Wrapper for xmp.h
 
 Generated with:
-ctypesgen/ctypesgen.py -lxmp ../libxmp/include/xmp.h -o pyxmp.py --insert-file=interface.py
+ctypesgen/ctypesgen.py -x XMP_VER.* -lxmp ../libxmp/include/xmp.h -o pyxmp.py --insert-file=interface.py
 
 Do not modify this file.
 '''
@@ -1080,31 +1080,6 @@ if hasattr(_libs['xmp'], 'xmp_set_instrument_path'):
     xmp_set_instrument_path = _libs['xmp'].xmp_set_instrument_path
     xmp_set_instrument_path.argtypes = [xmp_context, String]
     xmp_set_instrument_path.restype = c_int
-
-try:
-    XMP_VERSION = '4.1.5'
-except:
-    pass
-
-try:
-    XMP_VERCODE = 262405
-except:
-    pass
-
-try:
-    XMP_VER_MAJOR = 4
-except:
-    pass
-
-try:
-    XMP_VER_MINOR = 1
-except:
-    pass
-
-try:
-    XMP_VER_RELEASE = 5
-except:
-    pass
 
 try:
     XMP_NAME_SIZE = 64
