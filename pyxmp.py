@@ -1490,12 +1490,18 @@ class Xmp:
 	def inject_event(self, chn, event):
 		xmp_inject_event(self._ctx, chn, event)
 
-	def get_module_info(self, info):
-		return xmp_get_module_info(self._ctx, pointer(info))
+	def get_module_info(self, info = struct_xmp_module_info()):
+		xmp_get_module_info(self._ctx, pointer(info))
+		return info
 
 	def get_format_list(self):
-		# FIXME
-		pass
+		format_list = xmp_get_format_list()
+		i = 0
+		l = []
+		while format_list[i]:
+			l.append(ctypes.string_at(format_list[i]))
+			i = i + 1
+		return l
 
 	def next_position(self):
 		return xmp_next_position(self._ctx)
@@ -1531,6 +1537,15 @@ class Xmp:
 		return xmp_set_instrument_path(self._ctx, path)
 	
 	# Extra convenience calls
+
+	def test_info(self):
+		return struct_xmp_test_info()
+
+	def module_info(self):
+		return struct_xmp_module_info()
+
+	def frame_info(self):
+		return struct_xmp_frame_info()
 
 	def get_buffer(self, info):
 		buf = ctypes.cast(info.buffer, POINTER(c_int8))
