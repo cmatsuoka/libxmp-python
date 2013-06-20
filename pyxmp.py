@@ -1481,8 +1481,9 @@ class Xmp:
 	def play_buffer(self, buf, size, loop):
 		return xmp_play_buffer(self._ctx, buf, size, loop)
 
-	def get_frame_info(self, info):
-		return xmp_get_frame_info(self._ctx, pointer(info))
+	def get_frame_info(self, info = struct_xmp_frame_info()):
+		xmp_get_frame_info(self._ctx, pointer(info))
+		return info
 
 	def end_player(self):
 		xmp_end_player(self._ctx)
