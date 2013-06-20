@@ -50,8 +50,6 @@ if len(sys.argv) < 3:
     print "Usage: %s <module> <patnum>" % (os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-info = pyxmp.struct_xmp_module_info()
-
 xmp = pyxmp.Xmp()
 
 try:
@@ -61,6 +59,6 @@ except IOError, error:
     sys.exit(1)
 
 xmp.start_player(44100, 0)
-xmp.get_module_info(info)
+info = xmp.get_module_info()
 
 display_pattern(info.mod[0], int(sys.argv[2]))

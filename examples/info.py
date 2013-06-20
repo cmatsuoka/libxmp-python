@@ -13,9 +13,9 @@ if len(sys.argv) < 2:
     print "Usage: %s <module>" % (os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-info = pyxmp.struct_xmp_test_info()
-
 xmp = pyxmp.Xmp()
+
+info = xmp.test_info()
 
 for name in sys.argv[1:]:
     if xmp.test_module(name, info):

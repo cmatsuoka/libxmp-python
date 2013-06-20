@@ -47,9 +47,7 @@ def play(filename):
     """
     Our mod player.
     """
-    finfo = pyxmp.struct_xmp_frame_info()
-    minfo = pyxmp.struct_xmp_module_info()
-    
+
     xmp = pyxmp.Xmp()
     try:
         xmp.load_module(filename)
@@ -60,10 +58,13 @@ def play(filename):
     sound = Sound()
     
     xmp.start_player(44100, 0)
-    xmp.get_module_info(minfo)
+    minfo = xmp.get_module_info()
     
     mymod = minfo.mod[0]
     show_info(mymod)
+    
+    # reuse this object
+    finfo = xmp.frame_info()
     
     while xmp.play_frame():
         xmp.get_frame_info(finfo)
