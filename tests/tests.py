@@ -11,14 +11,12 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def setUp(self):
         self.xmp = pyxmp.Xmp()
-        self.mi = pyxmp.struct_xmp_module_info()
-        self.fi = pyxmp.struct_xmp_frame_info()
 
     def tearDown(self):
 	pass
 
     def test_test_module(self):
-        info = pyxmp.struct_xmp_test_info()
+        info = self.xmp.test_info()
         ret = self.xmp.test_module('test.itz', info)
         self.assertEqual(ret, True)
         self.assertEqual(info.name, 'test')
@@ -26,8 +24,8 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_load_module(self):
         self.xmp.load_module("test.itz")
-        self.xmp.get_module_info(self.mi)
-        mod = self.mi.mod[0]
+        mi = self.xmp.get_module_info()
+        mod = mi.mod[0]
         self.assertEqual(mod.name, "test")
         self.assertEqual(mod.len, 3)
         self.assertEqual(mod.pat, 1)
@@ -40,8 +38,8 @@ class TestSequenceFunctions(unittest.TestCase):
         self.xmp.load_module("test.itz")
         self.xmp.start_player(44100, 0)
         self.xmp.play_frame()
-        self.xmp.get_frame_info(self.fi)
-        buffer = self.xmp.get_buffer(self.fi)
+        fi = self.xmp.get_frame_info()
+        buffer = self.xmp.get_buffer(fi)
         f = open('buffer.raw', 'rb')
         ref = f.read()
         self.assertEqual(buffer, ref)
