@@ -1443,6 +1443,87 @@ class Xmp:
 
 	"""
 
+	# Constants
+
+	NAME_SIZE           = XMP_NAME_SIZE
+
+	KEY_OFF             = XMP_KEY_OFF
+        KEY_CUT             = XMP_KEY_CUT
+        KEY_FADE            = XMP_KEY_FADE
+
+        FORMAT_8BIT         = XMP_FORMAT_8BIT
+        FORMAT_UNSIGNED     = XMP_FORMAT_UNSIGNED
+        FORMAT_MONO         = XMP_FORMAT_MONO
+
+        PLAYER_AMP          = XMP_PLAYER_AMP
+        PLAYER_MIX          = XMP_PLAYER_MIX
+        PLAYER_INTERP       = XMP_PLAYER_INTERP
+        PLAYER_DSP          = XMP_PLAYER_DSP
+        PLAYER_FLAGS        = XMP_PLAYER_FLAGS
+        PLAYER_CFLAGS       = XMP_PLAYER_CFLAGS 
+        PLAYER_SMPCTL       = XMP_PLAYER_SMPCTL
+
+        INTERP_NEAREST      = XMP_INTERP_NEAREST
+        INTERP_LINEAR       = XMP_INTERP_LINEAR
+        INTERP_SPLINE       = XMP_INTERP_SPLINE
+
+        DSP_LOWPASS         = XMP_DSP_LOWPASS
+        DSP_ALL             = XMP_DSP_ALL
+
+        FLAGS_VBLANK        = XMP_FLAGS_VBLANK
+        FLAGS_FX9BUG        = XMP_FLAGS_FX9BUG
+        FLAGS_FIXLOOP       = XMP_FLAGS_FIXLOOP
+
+        SMPCTL_SKIP         = XMP_SMPCTL_SKIP
+
+        MAX_KEYS            = XMP_MAX_KEYS
+        MAX_ENV_POINTS      = XMP_MAX_ENV_POINTS
+        MAX_MOD_LENGTH      = XMP_MAX_MOD_LENGTH
+        MAX_CHANNELS        = XMP_MAX_CHANNELS
+        MAX_SRATE           = XMP_MAX_SRATE
+        MIN_SRATE           = XMP_MIN_SRATE
+        MIN_BPM             = XMP_MIN_BPM
+        MAX_FRAMESIZE       = XMP_MAX_FRAMESIZE
+
+        END                 = XMP_END
+        ERROR_INTERNAL      = XMP_ERROR_INTERNAL
+        ERROR_FORMAT        = XMP_ERROR_FORMAT
+        ERROR_LOAD          = XMP_ERROR_LOAD
+        ERROR_DEPACK        = XMP_ERROR_DEPACK
+        ERROR_SYSTEM        = XMP_ERROR_SYSTEM
+        ERROR_INVALID       = XMP_ERROR_INVALID
+
+        CHANNEL_SYNTH       = XMP_CHANNEL_SYNTH
+        CHANNEL_MUTE        = XMP_CHANNEL_MUTE
+
+        ENVELOPE_ON         = XMP_ENVELOPE_ON
+        ENVELOPE_SUS        = XMP_ENVELOPE_SUS
+        ENVELOPE_LOOP       = XMP_ENVELOPE_LOOP
+        ENVELOPE_FLT        = XMP_ENVELOPE_FLT
+        ENVELOPE_SLOOP      = XMP_ENVELOPE_SLOOP
+        ENVELOPE_CARRY      = XMP_ENVELOPE_CARRY
+
+        INST_NNA_CUT        = XMP_INST_NNA_CUT
+        INST_NNA_CONT       = XMP_INST_NNA_CONT
+        INST_NNA_OFF        = XMP_INST_NNA_OFF
+        INST_NNA_FADE       = XMP_INST_NNA_FADE
+        INST_DCT_OFF        = XMP_INST_DCT_OFF
+        INST_DCT_NOTE       = XMP_INST_DCT_NOTE
+        INST_DCT_SMP        = XMP_INST_DCT_SMP
+        INST_DCT_INST       = XMP_INST_DCT_INST
+        INST_DCA_CUT        = XMP_INST_DCA_CUT
+        INST_DCA_OFF        = XMP_INST_DCA_OFF
+        INST_DCA_FADE       = XMP_INST_DCA_FADE
+
+        SAMPLE_16BIT        = XMP_SAMPLE_16BIT
+        SAMPLE_LOOP         = XMP_SAMPLE_LOOP
+        SAMPLE_LOOP_BIDIR   = XMP_SAMPLE_LOOP_BIDIR
+        SAMPLE_LOOP_REVERSE = XMP_SAMPLE_LOOP_REVERSE
+        SAMPLE_LOOP_FULL    = XMP_SAMPLE_LOOP_FULL
+        SAMPLE_SYNTH        = XMP_SAMPLE_SYNTH
+
+        PERIOD_BASE         = XMP_PERIOD_BASE
+
 	# Regular C API calls for libxmp 4.1
 
 	def __init__(self):
