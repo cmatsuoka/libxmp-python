@@ -7,7 +7,7 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import pyxmp
+from pyxmp import Xmp
 
 
 def display_pattern(mod, num):
@@ -50,7 +50,7 @@ if len(sys.argv) < 3:
     print "Usage: %s <module> <patnum>" % (os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-xmp = pyxmp.Xmp()
+xmp = Xmp()
 
 try:
     xmp.load_module(sys.argv[1])

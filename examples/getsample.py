@@ -8,7 +8,7 @@ import os
 import wave
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import pyxmp
+from pyxmp import Xmp
 
 
 def extract_sample(xmp, mod, insnum, num):
@@ -21,7 +21,7 @@ def extract_sample(xmp, mod, insnum, num):
         print "Skip empty sample %d" % (num)
         return
 
-    if sample.flg & pyxmp.XMP_SAMPLE_16BIT:
+    if sample.flg & Xmp.SAMPLE_16BIT:
         sample_width = 2
         length *= 2
     else:
@@ -33,7 +33,7 @@ def extract_sample(xmp, mod, insnum, num):
     w.setnchannels(1)
     w.setsampwidth(sample_width)
     w.setframerate(16000)
-    w.writeframes(xmp.get_sample(mod, smpnum))
+    w.writeframes(xmp.get_sample(smpnum))
 
 def extract_instrument(xmp, mod, num):
     inst = mod.xxi[num]
@@ -46,7 +46,7 @@ if len(sys.argv) < 3:
     print "Usage: %s <module> <insnum>" % (os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-xmp = pyxmp.Xmp()
+xmp = Xmp()
 
 try:
     xmp.load_module(sys.argv[1])

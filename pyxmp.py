@@ -1456,16 +1456,17 @@ class Xmp:
 		xmp_free_context(self._ctx)
 		self._ctx = None
 
-	def test_module(self, path, info):
-		code = xmp_test_module(path, pointer(info))
-		return (code == 0)
-
 	def load_module(self, path):
 		code = xmp_load_module(self._ctx, path)
 		if (code < 0):
 			code = -code
 			raise IOError(code, os.strerror(code))
 	
+        @staticmethod
+        def test_module(path, info):
+                code = xmp_test_module(path, pointer(info))
+                return (code == 0)
+
 	def scan_module(self):
 		xmp_scan_module(self._ctx)
 
@@ -1539,20 +1540,25 @@ class Xmp:
 	
 	# Extra convenience calls
 
-	def test_info(self):
+	@staticmethod
+	def test_info():
 		return struct_xmp_test_info()
 
-	def module_info(self):
+	@staticmethod
+	def module_info():
 		return struct_xmp_module_info()
 
-	def frame_info(self):
+	@staticmethod
+	def frame_info():
 		return struct_xmp_frame_info()
 
-	def get_buffer(self, info):
+	@staticmethod
+	def get_buffer(info):
 		buf = ctypes.cast(info.buffer, POINTER(c_int8))
 		return ctypes.string_at(buf, info.buffer_size);
 
-	def get_sample(self, mod, num):
+	def get_sample(self, num):
+		mod = self.get_module_info().mod[0]
 		sample = mod.xxs[num]
 		buf = ctypes.cast(sample.data, POINTER(c_int8))
 

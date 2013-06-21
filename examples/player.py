@@ -8,7 +8,7 @@ import os
 import pyaudio
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import pyxmp
+from pyxmp import Xmp
 
 class Sound:
     """ Sound output manager
@@ -48,7 +48,7 @@ def play(filename):
     Our mod player.
     """
 
-    xmp = pyxmp.Xmp()
+    xmp = Xmp()
     try:
         xmp.load_module(filename)
     except IOError, error:
@@ -64,7 +64,7 @@ def play(filename):
     show_info(mymod)
     
     # reuse this object
-    finfo = xmp.frame_info()
+    finfo = Xmp.frame_info()
     
     while xmp.play_frame():
         xmp.get_frame_info(finfo)
