@@ -1530,14 +1530,10 @@ class Xmp:
         self._ctx = xmp_create_context()
 
     def __del__(self):
-        if self._ctx != None:
-            self.free()
-
-    def free(self):
         xmp_free_context(self._ctx)
-        self._ctx = None
 
     def load_module(self, path):
+        """Load a module file."""
         code = xmp_load_module(self._ctx, path)
         if (code < 0):
             code = -code
@@ -1545,29 +1541,36 @@ class Xmp:
     
     @staticmethod
     def test_module(path, info):
+        """Test if a file is a valid module."""
         code = xmp_test_module(path, pointer(info))
         return (code == 0)
 
     def scan_module(self):
+        """Scan the loaded module for sequences and timing."""
         xmp_scan_module(self._ctx)
 
     def release_module(self):
+        """Release all memory used by the loaded module."""
         xmp_release_module(self._ctx)
 
     def start_player(self, freq, mode):
+        """Start playing the currently loaded module."""
         return xmp_start_player(self._ctx, freq, mode)
 
     def play_frame(self):
+        """Play one frame of the module."""
         return xmp_play_frame(self._ctx) == 0
 
     def play_buffer(self, buf, size, loop):
         return xmp_play_buffer(self._ctx, buf, size, loop)
 
     def get_frame_info(self, info = struct_xmp_frame_info()):
+        """Retrieve current frame information."""
         xmp_get_frame_info(self._ctx, pointer(info))
         return info
 
     def end_player(self):
+        """End module replay and release player memory."""
         xmp_end_player(self._ctx)
 
     def inject_event(self, chn, event):
@@ -1587,21 +1590,27 @@ class Xmp:
         return l
 
     def next_position(self):
+        """Skip replay to the start of the next position."""
         return xmp_next_position(self._ctx)
 
     def prev_position(self):
+        """Skip replay to the start of the previous position."""
         return xmp_prev_position(self._ctx)
 
     def set_position(self, num):
+        """Skip replay to the start of the given position."""
         return xmp_set_position(self._ctx, num)
 
     def stop_module(self):
+        """Stop the currently playing module."""
         xmp_stop_module(self._ctx)
 
     def restart_module(self):
+        """Restart the currently playing module."""
         xmp_restart_module(self._ctx)
 
     def seek_time(self, time):
+        """Skip replay to the specified time."""
         return xmp_seek_time(self._ctx, time)
 
     def channel_mute(self, chn, val):
