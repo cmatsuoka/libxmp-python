@@ -1524,6 +1524,18 @@ class Xmp:
 
     PERIOD_BASE         = XMP_PERIOD_BASE
 
+    # Error messages
+
+    _error = [
+        "No error",
+        "End of module",
+        "Internal error",
+        "Can't load module",
+        "Can't decompress module",
+        "System error",
+        "Invalid parameter"
+    ]
+
     # Regular C API calls for libxmp 4.1
 
     def __init__(self):
@@ -1536,8 +1548,8 @@ class Xmp:
         """Load a module file."""
         code = xmp_load_module(self._ctx, path)
         if (code < 0):
-            code = -code
-            raise IOError(code, os.strerror(code))
+            #raise IOError(code, os.strerror(code))
+            raise IOError(-code, self._error[-code])
     
     @staticmethod
     def test_module(path, info):
