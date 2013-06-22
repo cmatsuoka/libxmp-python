@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Example 2: identify module files
+Identify module files
 """
 
 import sys

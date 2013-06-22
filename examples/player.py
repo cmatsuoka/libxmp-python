@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Example 1: A simple modplayer in python using xmp and pyaudio
+A simple modplayer in python
 """
 
 import sys

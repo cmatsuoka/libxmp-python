@@ -112,7 +112,7 @@ class Xmp:
     def load_module(self, path):
         """Load a module file."""
         code = xmp_load_module(self._ctx, path)
-        if (code < 0):
+        if code < 0:
             #raise IOError(code, os.strerror(code))
             raise IOError(-code, self._error[-code])
     
@@ -130,7 +130,7 @@ class Xmp:
         """Release all memory used by the loaded module."""
         xmp_release_module(self._ctx)
 
-    def start_player(self, freq, mode):
+    def start_player(self, freq, mode = 0):
         """Start playing the currently loaded module."""
         return xmp_start_player(self._ctx, freq, mode)
 
@@ -138,8 +138,9 @@ class Xmp:
         """Play one frame of the module."""
         return xmp_play_frame(self._ctx) == 0
 
-    def play_buffer(self, buf, size, loop):
-        return xmp_play_buffer(self._ctx, buf, size, loop)
+    def play_buffer(self, buf, size, loop = 1):
+        ret = xmp_play_buffer(self._ctx, buf, size, loop)
+        return (ret == 0)
 
     def get_frame_info(self, info = struct_xmp_frame_info()):
         """Retrieve current frame information."""
@@ -218,6 +219,10 @@ class Xmp:
     @staticmethod
     def frame_info():
         return struct_xmp_frame_info()
+
+    @staticmethod
+    def buffer(size):
+	return ctypes.create_string_buffer(size)
 
     @staticmethod
     def get_buffer(info):

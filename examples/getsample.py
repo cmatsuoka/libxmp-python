@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Example 3: extract samples to wav files
+Extract samples to wav files
 """
 
 import sys

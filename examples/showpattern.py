@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Example 4: display pattern data
+Display pattern data
 """
 
 import sys
