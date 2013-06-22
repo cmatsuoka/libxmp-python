@@ -17,7 +17,8 @@ WORD_SIZE = 2
 SAMPLE_RATE = 44100
 
 
-def callback(in_data, frame_count, time_info, status):
+def cb_callback(in_data, frame_count, time_info, status):
+    """Pyaudio callback function."""
     size = frame_count * CHANNELS * WORD_SIZE
     lock.acquire()
     data = xmp.play_buffer(size)
@@ -25,6 +26,7 @@ def callback(in_data, frame_count, time_info, status):
     return (data, pyaudio.paContinue)
 
 def play(filename):
+    """Load and play the module file."""
     try:
         xmp.load_module(filename)
     except IOError, error:
@@ -40,31 +42,31 @@ def play(filename):
         if len(ins.name.rstrip()) > 0:
             print ' {0:>2} {1.name}'.format(i, mod.xxi[i])
     
-    p = pyaudio.PyAudio()
-    stream = p.open(format = p.get_format_from_width(WORD_SIZE),
+    audio = pyaudio.PyAudio()
+    stream = audio.open(format = audio.get_format_from_width(WORD_SIZE),
                     channels = CHANNELS, rate = SAMPLE_RATE,
-                    output = True, stream_callback = callback)
+                    output = True, stream_callback = cb_callback)
     
     xmp.start_player(SAMPLE_RATE)
     stream.start_stream()
-    fi = Xmp.frame_info()
+    info = Xmp.frame_info()
 
     while stream.is_active():
         lock.acquire()
-        xmp.get_frame_info(fi)
+        xmp.get_frame_info(info)
         lock.release()
         sys.stdout.write(' {0.pos:>3}/{1.len:>3} {0.row:>3}/{0.num_rows:>3}\r'
-                         .format(fi, mod))
-	sys.stdout.flush()
+                         .format(info, mod))
+        sys.stdout.flush()
         time.sleep(0.1)
     
     stream.stop_stream()
     stream.close()
-    p.terminate()
+    audio.terminate()
     xmp.end_player()
     xmp.release_module()
 
-if __name__=="__main__":
+if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: {0} <module>".format(os.path.basename(sys.argv[0]))
         sys.exit(1)
