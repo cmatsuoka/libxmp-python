@@ -1573,8 +1573,9 @@ class Xmp:
         """Play one frame of the module."""
         return xmp_play_frame(self._ctx) == 0
 
-    def play_buffer(self, size, loop = 1):
-	buf = ctypes.create_string_buffer(size)
+    def play_buffer(self, size, loop = 1, buf = None):
+        if buf == None:
+            buf = self.buffer(size)
         ret = xmp_play_buffer(self._ctx, buf, size, loop)
         if ret == 0:
 		return buf
@@ -1646,6 +1647,10 @@ class Xmp:
         return xmp_set_instrument_path(self._ctx, path)
     
     # Extra convenience calls
+
+    @staticmethod
+    def buffer(size):
+	return ctypes.create_string_buffer(size)
 
     @staticmethod
     def test_info():
