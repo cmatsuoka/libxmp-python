@@ -47,7 +47,7 @@ class LoadTests(unittest.TestCase):
             self.xmp.load_module('buffer.raw')
         except IOError, e:
 	    z = e
-        self.assertEqual(z.errno, 3)
+        self.assertEqual(z.errno, Xmp.ERROR_FORMAT)
 
 class MixerTests(unittest.TestCase):
     def setUp(self):
