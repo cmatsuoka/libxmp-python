@@ -138,9 +138,13 @@ class Xmp:
         """Play one frame of the module."""
         return xmp_play_frame(self._ctx) == 0
 
-    def play_buffer(self, buf, size, loop = 1):
+    def play_buffer(self, size, loop = 1):
+	buf = ctypes.create_string_buffer(size)
         ret = xmp_play_buffer(self._ctx, buf, size, loop)
-        return (ret == 0)
+        if ret == 0:
+		return buf
+	else:
+		return None
 
     def get_frame_info(self, info = struct_xmp_frame_info()):
         """Retrieve current frame information."""
@@ -219,10 +223,6 @@ class Xmp:
     @staticmethod
     def frame_info():
         return struct_xmp_frame_info()
-
-    @staticmethod
-    def buffer(size):
-	return ctypes.create_string_buffer(size)
 
     @staticmethod
     def get_buffer(info):

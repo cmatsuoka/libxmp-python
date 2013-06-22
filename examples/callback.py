@@ -7,6 +7,7 @@ import sys
 import os
 import time
 import pyaudio
+from threading import Lock
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pyxmp import Xmp
@@ -17,43 +18,58 @@ SAMPLE_RATE = 44100
 
 
 def callback(in_data, frame_count, time_info, status):
-    cont = pyaudio.paContinue
     size = frame_count * CHANNELS * WORD_SIZE
-    data = Xmp.buffer(size)
-    if not xmp.play_buffer(data, size):
-        cont = pyaudio.paComplete
-    return (data, cont)
+    lock.acquire()
+    data = xmp.play_buffer(size)
+    lock.release()
+    return (data, pyaudio.paContinue)
 
+def play(filename):
+    try:
+        xmp.load_module(filename)
+    except IOError, error:
+        sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
+        sys.exit(1)
+    
+    # Display module info
+    mod = xmp.get_module_info().mod[0]
+    print 'Name: {0.name}\nType: {0.type}'.format(mod)
+    print 'Instruments: {0.ins}   Samples: {0.smp}'.format(mod)
+    for i in range (mod.ins):
+        ins = mod.xxi[i]
+        if len(ins.name.rstrip()) > 0:
+            print ' {0:>2} {1.name}'.format(i, mod.xxi[i])
+    
+    p = pyaudio.PyAudio()
+    stream = p.open(format = p.get_format_from_width(WORD_SIZE),
+                    channels = CHANNELS, rate = SAMPLE_RATE,
+                    output = True, stream_callback = callback)
+    
+    xmp.start_player(SAMPLE_RATE)
+    stream.start_stream()
+    fi = Xmp.frame_info()
 
-if len(sys.argv) < 2:
-    print "Usage: %s <module>" % (os.path.basename(sys.argv[0]))
-    sys.exit(1)
+    while stream.is_active():
+        lock.acquire()
+        xmp.get_frame_info(fi)
+        lock.release()
+        sys.stdout.write(' {0.pos:>3}/{1.len:>3} {0.row:>3}/{0.num_rows:>3}\r'
+                         .format(fi, mod))
+	sys.stdout.flush()
+        time.sleep(0.1)
+    
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+    xmp.end_player()
+    xmp.release_module()
 
-xmp = Xmp()
-try:
-    xmp.load_module(sys.argv[1])
-except IOError, error:
-    sys.stderr.write('{0}: {1}\n'.format(sys.argv[1], error.strerror))
-    sys.exit(1)
+if __name__=="__main__":
+    if len(sys.argv) < 2:
+        print "Usage: {0} <module>".format(os.path.basename(sys.argv[0]))
+        sys.exit(1)
 
-print 'Module name:', xmp.get_module_info().mod[0].name
-
-p = pyaudio.PyAudio()
-stream = p.open(format = p.get_format_from_width(WORD_SIZE),
-                channels = CHANNELS, rate = SAMPLE_RATE,
-                output = True, stream_callback = callback)
-
-xmp.start_player(SAMPLE_RATE)
-
-stream.start_stream()
-
-while stream.is_active():
-    time.sleep(0.1)
-
-stream.stop_stream()
-stream.close()
-p.terminate()
-
-xmp.end_player()
-xmp.release_module()
+    xmp = Xmp()
+    lock = Lock()
+    play(sys.argv[1])
 
