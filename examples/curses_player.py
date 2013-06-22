@@ -28,6 +28,7 @@ def cb_callback(in_data, frame_count, time_info, status):
     return (data, pyaudio.paContinue)
 
 def show_info(minfo, finfo, vols):
+    """Draw information screen with instruments and volume bars."""
     mod = minfo.mod[0]
 
     # header
@@ -72,7 +73,7 @@ def play(filename):
         sys.exit(1)
     
     minfo = xmp.get_module_info()
-    vols = [ 0 for i in range(minfo.mod[0].chn) ]
+    vols = [ 0 ] * minfo.mod[0].chn
 
     audio = pyaudio.PyAudio()
     stream = audio.open(format = audio.get_format_from_width(WORD_SIZE),
@@ -103,7 +104,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     stdscr = curses.initscr()
-    (height, width) = stdscr.getmaxyx() 
+    #(height, width) = stdscr.getmaxyx() 
     #curses.start_color()
     curses.noecho()
     #curses.cbreak()
