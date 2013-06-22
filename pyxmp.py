@@ -1552,10 +1552,13 @@ class Xmp:
             raise IOError(-code, self._error[-code])
     
     @staticmethod
-    def test_module(path, info):
+    def test_module(path, info = struct_xmp_test_info()):
         """Test if a file is a valid module."""
         code = xmp_test_module(path, pointer(info))
-        return (code == 0)
+        if code == 0:
+           return info
+        else:
+           return None
 
     def scan_module(self):
         """Scan the loaded module for sequences and timing."""
