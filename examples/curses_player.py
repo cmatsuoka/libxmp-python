@@ -32,6 +32,31 @@ def cb_callback(in_data, frame_count, time_info, status):
     lock.release()
     return (data, pyaudio.paContinue)
 
+def show_event(xmp, pat, row, chn):
+    notes = [ 'C ', 'C#', 'D ', 'D#', 'E ', 'F ',
+              'F#', 'G ', 'G#', 'A ', 'A#', 'B ' ]
+
+    if row < 0:
+        return ''
+
+    event = xmp.get_event(pat, row, chn)
+
+    if event.ins > 0: ins = event.ins
+    else: ins = '--'
+
+    if event.vol > 0: vol = event.vol
+    else: vol = '--'
+
+    if event.note == 0:
+        note = '--- -- --|'
+    elif event.note < 128:
+        note = '{0}{1} {2:>2} {3:>2}|'.format(notes[event.note % 12],
+                                         event.note / 12, ins, vol)
+    else:
+        note = '=== -- --|'
+
+    return '{0:3}'.format(note)
+    
 def show_info(minfo, finfo, vols):
     """Draw information screen with instruments and volume bars."""
     mod = minfo.mod[0]
@@ -96,6 +121,42 @@ def show_info(minfo, finfo, vols):
                       ins_text, '=' * vols[i]))
     win2.noutrefresh()
     pad2.noutrefresh(0, 0,  5, 1,  5 - 1 + h, w)
+
+    # track data
+    h3 = height - h - 4
+    w = width
+    pad3 = curses.newpad(h3, w + 12)
+
+    # row numbers
+    for j in range(h3 - 1):
+        row = finfo.row + j - (h3 - 1) / 2
+        if row < 0 or row >= finfo.num_rows:
+            row = ''
+        if j == (h3 - 1) / 2:
+            pad3.addstr(j + 1, 0, '{0:>3}'.format(row), curses.A_BOLD)
+        else:
+            pad3.addstr(j + 1, 0, '{0:>3}'.format(row))
+
+    # channels
+    for chn in range (mod.chn):
+        if 4 + chn * 10 >= w:
+            break
+        pad3.addstr(0, 4 + chn * 10, '{0:^10}'
+                        .format(chn + 1), curses.A_REVERSE)
+
+        # rows
+        for j in range(h3 - 1):
+            row = finfo.row + j - (h3 - 1) / 2
+            if row < 0 or row >= finfo.num_rows:
+                evstr = ''
+            else:
+                evstr = show_event(xmp, finfo.pattern, row, chn)
+            if j == (h3 - 1) / 2:
+                pad3.addstr(j + 1, 4 + chn * 10, evstr, curses.A_BOLD)
+            else:
+                pad3.addstr(j + 1, 4 + chn * 10, evstr)
+
+    pad3.noutrefresh(0, 0,  h + 4 + 2, 0,  height - 1, width - 1) 
 
     curses.doupdate()
     
