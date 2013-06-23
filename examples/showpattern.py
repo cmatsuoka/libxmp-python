@@ -11,10 +11,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pyxmp import Xmp
 
 
-def display_pattern(mod, num):
+def display_pattern(xmp, num):
     notes = [ 'C ', 'C#', 'D ', 'D#', 'E ', 'F ',
-          'F#', 'G ', 'G#', 'A ', 'A#', 'B ' ]
+              'F#', 'G ', 'G#', 'A ', 'A#', 'B ' ]
 
+    mod = xmp.get_module_info().mod[0]
+ 
     print "PATTERN %02x" % (num)
 
     rows = mod.xxp[num][0].rows
@@ -24,9 +26,7 @@ def display_pattern(mod, num):
         sys.stdout.write("%02X|" % (i))
 
         for j in range(channels):
-            track = mod.xxp[num][0].index[j]
-            track_rows = mod.xxt[track][0].rows
-            event = mod.xxt[track][0].event[i]
+            event = xmp.get_event(num, i, j)
             
             if event.note == 0:
                 sys.stdout.write("---")
@@ -60,6 +60,5 @@ except IOError, error:
     sys.exit(1)
 
 xmp.start_player(44100, 0)
-info = xmp.get_module_info()
 
-display_pattern(info.mod[0], int(sys.argv[2]))
+display_pattern(xmp, int(sys.argv[2]))

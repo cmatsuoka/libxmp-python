@@ -1433,6 +1433,7 @@ xmp_frame_info = struct_xmp_frame_info
 
 # Begin "interface.py"
 
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 class Xmp:
     """A multi format module player
@@ -1671,6 +1672,11 @@ class Xmp:
     def get_buffer(info):
         buf = ctypes.cast(info.buffer, POINTER(c_int8))
         return ctypes.string_at(buf, info.buffer_size);
+
+    def get_event(self, pat, row, chn):
+        mod = self.get_module_info().mod[0]
+        trk = mod.xxp[pat][0].index[chn]
+        return mod.xxt[trk][0].event[row]
 
     def get_sample(self, num):
         mod = self.get_module_info().mod[0]
