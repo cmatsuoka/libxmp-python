@@ -86,11 +86,11 @@ def show_info(minfo, finfo, vols):
             ins_text = '<unused>'
 
         if i >= h:
-           col = w / 2
-           ofs = h
+            col = w / 2
+            ofs = h
         else:
-           col = 0
-           ofs = 0
+            col = 0
+            ofs = 0
 
         pad2.addstr(i - ofs, col, '{0:>2}:{1:<22} {2:<12}'.format(i + 1,
                       ins_text, '=' * vols[i]))
