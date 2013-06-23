@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """
 A simple modplayer in python (callback version)
 """
@@ -8,6 +9,7 @@ import os
 import time
 import pyaudio
 import curses
+import atexit
 from threading import Lock
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -18,6 +20,9 @@ WORD_SIZE = 2
 SAMPLE_RATE = 44100
 VOL_DECAY = 1
 
+def reset():
+    curses.endwin()
+    print "Reset terminal settings"
 
 def cb_callback(in_data, frame_count, time_info, status):
     """Pyaudio callback function."""
@@ -31,26 +36,46 @@ def show_info(minfo, finfo, vols):
     """Draw information screen with instruments and volume bars."""
     mod = minfo.mod[0]
 
+    (height, width) = stdscr.getmaxyx() 
+
     # header
-    stdscr.addstr(0, 0, 'Name: {0.name:<30} Type: {0.type:<30}'.format(mod),
-                  curses.A_REVERSE)
-    stdscr.addstr(1, 0, 'Ins: {1.ins}   Smp: {1.smp}   Pos: {0.pos:>3}'
-                  '/{1.len:>3}   Row: {0.row:>3}/{0.num_rows:>3}'.
-                  format(finfo, mod))
+    h = 2
+    w = width - 2
+    win1 = curses.newwin(h + 2, width, 0, 0)
+    win1.box()
+    pad1 = curses.newpad(h, w)
+
+    pad1.addstr(0, 0, 'Name: {0.name:<30} Type: {0.type}'
+                  .format(mod).ljust(w), curses.A_REVERSE)
+    pad1.addstr(1, 0, 'Ins: {1.ins}   Smp: {1.smp}   Chn: {1.chn}   '
+                  'Pos:{0.pos:>3}/{1.len:>3}   Row:{0.row:>3}/{0.num_rows:>3}'
+                  .format(finfo, mod))
+
+    win1.noutrefresh()
+    pad1.noutrefresh(0, 0,  1, 1,  h, w)
 
     # channel list
+    h = (height - 4) / 2 - 2
+    w = width - 2
+    win2 = curses.newwin(h + 2, width, 4, 0)
+    win2.box()
+    pad2 = curses.newpad(h, w)
+
     for i in range(mod.chn):
+        if i >= h * 2:
+            break
+
         cinfo = finfo.channel_info[i]
         ins = cinfo.instrument
         event = cinfo.event
 
         if event.vol != 0:
-            vols[i] = (cinfo.volume * 16 / minfo.vol_base)
+            vols[i] = (cinfo.volume * 12 / minfo.vol_base)
         vols[i] -= VOL_DECAY
         if vols[i] < 0:
             vols[i] = 0
         if event.note > 0 and event.note < Xmp.KEY_OFF:
-            vols[i] = 16
+            vols[i] = (mod.xxi[ins].vol * 12 / minfo.vol_base)
 
         if ins < 255:
             if cinfo.volume > 0:
@@ -60,9 +85,19 @@ def show_info(minfo, finfo, vols):
         else:
             ins_text = '<unused>'
 
-        stdscr.addstr(3 + i, 0, ' {0:>2}: {1:<22} {2:<16}'.format(i + 1,
+        if i >= h:
+           col = w / 2
+           ofs = h
+        else:
+           col = 0
+           ofs = 0
+
+        pad2.addstr(i - ofs, col, '{0:>2}:{1:<22} {2:<12}'.format(i + 1,
                       ins_text, '=' * vols[i]))
-    stdscr.refresh()
+    win2.noutrefresh()
+    pad2.noutrefresh(0, 0,  5, 1,  5 - 1 + h, w)
+
+    curses.doupdate()
     
 def play(filename):
     """Load and play the module file."""
@@ -104,9 +139,11 @@ if __name__ == "__main__":
         sys.exit(1)
 
     stdscr = curses.initscr()
-    #(height, width) = stdscr.getmaxyx() 
-    #curses.start_color()
+    atexit.register(reset)
+
+    curses.start_color()
     curses.noecho()
+    curses.curs_set(0)
     #curses.cbreak()
     #stdscr.keypad(1)
 
@@ -119,5 +156,5 @@ if __name__ == "__main__":
 
     #curses.nocbreak();
     #stdscr.keypad(0);
-    curses.echo()
-    #curses.end_color()
+    #curses.curs_set(1)
+    #curses.echo()
