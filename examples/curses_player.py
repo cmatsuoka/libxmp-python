@@ -21,6 +21,7 @@ SAMPLE_RATE = 44100
 VOL_DECAY = 1
 
 def reset():
+    """Reset terminal settings."""
     curses.endwin()
     print "Reset terminal settings"
 
@@ -32,20 +33,20 @@ def cb_callback(in_data, frame_count, time_info, status):
     lock.release()
     return (data, pyaudio.paContinue)
 
-def show_event(xmp, pat, row, chn):
+def show_event(event):
+    """Display a single event"""
     notes = [ 'C ', 'C#', 'D ', 'D#', 'E ', 'F ',
               'F#', 'G ', 'G#', 'A ', 'A#', 'B ' ]
 
-    if row < 0:
-        return ''
+    if event.ins > 0:
+        ins = event.ins
+    else:
+        ins = '--'
 
-    event = xmp.get_event(pat, row, chn)
-
-    if event.ins > 0: ins = event.ins
-    else: ins = '--'
-
-    if event.vol > 0: vol = event.vol
-    else: vol = '--'
+    if event.vol > 0:
+        vol = event.vol
+    else:
+        vol = '--'
 
     if event.note == 0:
         note = '--- -- --|'
@@ -96,11 +97,12 @@ def show_info(minfo, finfo, vols):
 
         if event.vol != 0:
             vols[i] = (cinfo.volume * 12 / minfo.vol_base)
+        elif event.note > 0 and event.note < Xmp.KEY_OFF and ins < 255:
+            vols[i] = (mod.xxi[ins].vol * 12 / minfo.vol_base)
+
         vols[i] -= VOL_DECAY
         if vols[i] < 0:
             vols[i] = 0
-        if event.note > 0 and event.note < Xmp.KEY_OFF:
-            vols[i] = (mod.xxi[ins].vol * 12 / minfo.vol_base)
 
         if ins < 255:
             if cinfo.volume > 0:
@@ -116,6 +118,9 @@ def show_info(minfo, finfo, vols):
         else:
             col = 0
             ofs = 0
+
+        if vols[i] > 12:
+            print vols[i]
 
         pad2.addstr(i - ofs, col, '{0:>2}:{1:<22} {2:<12}'.format(i + 1,
                       ins_text, '=' * vols[i]))
@@ -150,7 +155,8 @@ def show_info(minfo, finfo, vols):
             if row < 0 or row >= finfo.num_rows:
                 evstr = ''
             else:
-                evstr = show_event(xmp, finfo.pattern, row, chn)
+                event = xmp.get_event(finfo.pattern, row, chn)
+                evstr = show_event(event)
             if j == (h3 - 1) / 2:
                 pad3.addstr(j + 1, 4 + chn * 10, evstr, curses.A_BOLD)
             else:
