@@ -165,21 +165,6 @@ def track_info(height, width, finfo, mod):
 
     pad3.noutrefresh(0, 0,  p_x + 4 + 2, 0,  height - 1, width - 1) 
 
-def show_info(minfo, finfo, vols, old_row):
-    """Draw information screen with instruments and volume bars."""
-    mod = minfo.mod[0]
-
-    (height, width) = stdscr.getmaxyx() 
-
-    if finfo.row != old_row:
-        header_info(height, width, finfo, mod)
-        track_info(height, width, finfo, mod)
-        old_row = finfo.row
-
-    channel_info(height, width, minfo, finfo, vols)
-    curses.doupdate()
-    return old_row
-    
 def play(filename):
     """Load and play the module file."""
     try:
@@ -189,7 +174,8 @@ def play(filename):
         sys.exit(1)
     
     minfo = xmp.get_module_info()
-    vols = [ 0 ] * minfo.mod[0].chn
+    mod = minfo.mod[0]
+    vols = [ 0 ] * mod.chn
 
     audio = pyaudio.PyAudio()
     stream = audio.open(format = audio.get_format_from_width(WORD_SIZE),
@@ -200,13 +186,21 @@ def play(filename):
     stream.start_stream()
     finfo = Xmp.frame_info()
 
+    (height, width) = stdscr.getmaxyx() 
+
     old_row = -1
     while stream.is_active():
         lock.acquire()
         xmp.get_frame_info(finfo)
         lock.release()
-        old_row = show_info(minfo, finfo, vols, old_row)
-        sys.stdout.flush()
+
+        if finfo.row != old_row:
+            header_info(height, width, finfo, mod)
+            track_info(height, width, finfo, mod)
+            old_row = finfo.row
+    
+        channel_info(height, width, minfo, finfo, vols)
+        curses.doupdate()
         time.sleep(0.05)
     
     stream.stop_stream()
