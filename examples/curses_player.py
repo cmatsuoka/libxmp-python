@@ -20,6 +20,36 @@ WORD_SIZE = 2
 SAMPLE_RATE = 44100
 VOL_DECAY = 1
 
+class Pad:
+    def __init__(self, l, c, lines, cols, box=False):
+        if box:
+            self._win = curses.newwin(lines, cols, l, c)
+            self._win.box()
+            lines -= 2
+            cols -= 2
+            l += 1
+            c += 1
+        self._pad = curses.newpad(lines, cols + 1)
+        self._box = box
+        (self._height, self._width) = stdscr.getmaxyx() 
+        self.lines = lines
+        self.cols = cols
+        self.l = l
+        self.c = c
+
+    def noutrefresh(self):
+        if self._box:
+            self._win.noutrefresh()
+        maxline = min(self.l + self.lines - 1, self._height - 1)
+        maxcol = min(self.c + self.cols - 1, self._width - 1)
+        return self._pad.noutrefresh(0, 0, self.l, self.c, maxline, maxcol)
+
+    def addstr(self, line, col, msg, attr=curses.A_NORMAL):
+        if len(msg) + col >= self.cols:
+            newlen = self.cols - col
+            msg = msg[:newlen]
+        return self._pad.addstr(line, col, msg, attr)
+
 def reset():
     """Reset terminal settings."""
     curses.endwin()
@@ -60,34 +90,24 @@ def show_event(event):
     
 def header_info(height, width, finfo, mod):
     """Display basic module data on top pane."""
-    p_h = 2
-    p_w = width - 2
-
-    win1 = curses.newwin(p_h + 2, width, 0, 0)
-    win1.box()
-    pad1 = curses.newpad(p_h, p_w)
+    pad1 = Pad(0, 0, 4, width, True)
 
     pad1.addstr(0, 0, 'Name: {0.name:<30} Type: {0.type}'
-                  .format(mod).ljust(p_w), curses.A_REVERSE)
+                .format(mod).ljust(pad1.cols), curses.A_REVERSE)
     pad1.addstr(1, 0, 'Ins: {1.ins}   Smp: {1.smp}   Chn: {1.chn}   '
-                  'Pos:{0.pos:>3}/{1.len:>3}   Row:{0.row:>3}/{0.num_rows:>3}'
-                  .format(finfo, mod))
+                'Pos:{0.pos:>3}/{1.len:>3}   Row:{0.row:>3}/{0.num_rows:>3}'
+                .format(finfo, mod))
 
-    win1.noutrefresh()
-    pad1.noutrefresh(0, 0,  1, 1,  p_h, p_w)        # 1 + p_h - 1
+    pad1.noutrefresh()
 
 def channel_info(height, width, minfo, finfo, vols):
     """Display instrument and volume bars in middle pane."""
-    p_h = (height - 4) / 2 - 2
-    p_w = width - 2
-    win2 = curses.newwin(p_h + 2, width, 4, 0)
-    win2.box()
-    pad2 = curses.newpad(p_h, p_w)
+    pad2 = Pad(4, 0, (height - 4) / 2, width, True)
 
     mod = minfo.mod[0]
 
     for i in range(mod.chn):
-        if i >= p_h * 2:
+        if i >= pad2.lines * 2:
             break
 
         cinfo = finfo.channel_info[i]
@@ -111,9 +131,9 @@ def channel_info(height, width, minfo, finfo, vols):
         else:
             ins_text = '<unused>'
 
-        if i >= p_h:
-            col = p_w / 2
-            ofs = p_h
+        if i >= pad2.lines:
+            col = pad2.cols / 2
+            ofs = pad2.lines 
         else:
             col = 0
             ofs = 0
@@ -123,47 +143,43 @@ def channel_info(height, width, minfo, finfo, vols):
 
         pad2.addstr(i - ofs, col, '{0:>2}:{1:<22} {2:<12}'.format(i + 1,
                       ins_text, '=' * vols[i]))
-    win2.noutrefresh()
-    pad2.noutrefresh(0, 0,  5, 1,  5 - 1 + p_h, p_w)
+    pad2.noutrefresh()
 
 def track_info(height, width, finfo, mod):
     """Display track data in bottom pane."""
-    p_x = (height - 4) / 2 - 2
-    p_h = height - p_x - 4
-    p_w = width
-    pad3 = curses.newpad(p_h, p_w + 10)
+    pad3 = Pad(4 + (height - 4) / 2, 0, height - 4 - (height - 4) / 2, width)
 
     # row numbers
-    for j in range(p_h - 1):
-        row = finfo.row + j - (p_h - 1) / 2
+    for j in range(pad3.lines - 1):
+        row = finfo.row + j - (pad3.lines - 1) / 2
         if row < 0 or row >= finfo.num_rows:
             row = ''
-        if j == (p_h - 1) / 2:
+        if j == (pad3.lines - 1) / 2:
             pad3.addstr(j + 1, 0, '{0:>3}'.format(row), curses.A_BOLD)
         else:
             pad3.addstr(j + 1, 0, '{0:>3}'.format(row))
 
     # channels
     for chn in range (mod.chn):
-        if 4 + chn * 10 >= p_w:
+        if 4 + chn * 10 >= pad3.cols:
             break
         pad3.addstr(0, 4 + chn * 10, '{0:^10}'
                         .format(chn + 1), curses.A_REVERSE)
 
         # rows
-        for j in range(p_h - 1):
-            row = finfo.row + j - (p_h - 1) / 2
+        for j in range(pad3.lines - 1):
+            row = finfo.row + j - (pad3.lines - 1) / 2
             if row < 0 or row >= finfo.num_rows:
                 evstr = ''
             else:
                 event = xmp.get_event(finfo.pattern, row, chn)
                 evstr = show_event(event)
-            if j == (p_h - 1) / 2:
+            if j == (pad3.lines - 1) / 2:
                 pad3.addstr(j + 1, 4 + chn * 10, evstr, curses.A_BOLD)
             else:
                 pad3.addstr(j + 1, 4 + chn * 10, evstr)
 
-    pad3.noutrefresh(0, 0,  p_x + 4 + 2, 0,  height - 1, width - 1) 
+    pad3.noutrefresh() 
 
 def play(filename):
     """Load and play the module file."""
