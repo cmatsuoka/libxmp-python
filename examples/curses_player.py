@@ -58,37 +58,36 @@ def show_event(event):
 
     return '{0:3}'.format(note)
     
-def show_info(minfo, finfo, vols):
-    """Draw information screen with instruments and volume bars."""
-    mod = minfo.mod[0]
+def header_info(height, width, finfo, mod):
+    """Display basic module data on top pane."""
+    p_h = 2
+    p_w = width - 2
 
-    (height, width) = stdscr.getmaxyx() 
-
-    # header
-    h = 2
-    w = width - 2
-    win1 = curses.newwin(h + 2, width, 0, 0)
+    win1 = curses.newwin(p_h + 2, width, 0, 0)
     win1.box()
-    pad1 = curses.newpad(h, w)
+    pad1 = curses.newpad(p_h, p_w)
 
     pad1.addstr(0, 0, 'Name: {0.name:<30} Type: {0.type}'
-                  .format(mod).ljust(w), curses.A_REVERSE)
+                  .format(mod).ljust(p_w), curses.A_REVERSE)
     pad1.addstr(1, 0, 'Ins: {1.ins}   Smp: {1.smp}   Chn: {1.chn}   '
                   'Pos:{0.pos:>3}/{1.len:>3}   Row:{0.row:>3}/{0.num_rows:>3}'
                   .format(finfo, mod))
 
     win1.noutrefresh()
-    pad1.noutrefresh(0, 0,  1, 1,  h, w)
+    pad1.noutrefresh(0, 0,  1, 1,  p_h, p_w)        # 1 + p_h - 1
 
-    # channel list
-    h = (height - 4) / 2 - 2
-    w = width - 2
-    win2 = curses.newwin(h + 2, width, 4, 0)
+def channel_info(height, width, minfo, finfo, vols):
+    """Display instrument and volume bars in middle pane."""
+    p_h = (height - 4) / 2 - 2
+    p_w = width - 2
+    win2 = curses.newwin(p_h + 2, width, 4, 0)
     win2.box()
-    pad2 = curses.newpad(h, w)
+    pad2 = curses.newpad(p_h, p_w)
+
+    mod = minfo.mod[0]
 
     for i in range(mod.chn):
-        if i >= h * 2:
+        if i >= p_h * 2:
             break
 
         cinfo = finfo.channel_info[i]
@@ -112,9 +111,9 @@ def show_info(minfo, finfo, vols):
         else:
             ins_text = '<unused>'
 
-        if i >= h:
-            col = w / 2
-            ofs = h
+        if i >= p_h:
+            col = p_w / 2
+            ofs = p_h
         else:
             col = 0
             ofs = 0
@@ -125,46 +124,61 @@ def show_info(minfo, finfo, vols):
         pad2.addstr(i - ofs, col, '{0:>2}:{1:<22} {2:<12}'.format(i + 1,
                       ins_text, '=' * vols[i]))
     win2.noutrefresh()
-    pad2.noutrefresh(0, 0,  5, 1,  5 - 1 + h, w)
+    pad2.noutrefresh(0, 0,  5, 1,  5 - 1 + p_h, p_w)
 
-    # track data
-    h3 = height - h - 4
-    w = width
-    pad3 = curses.newpad(h3, w + 12)
+def track_info(height, width, finfo, mod):
+    """Display track data in bottom pane."""
+    p_x = (height - 4) / 2 - 2
+    p_h = height - p_x - 4
+    p_w = width
+    pad3 = curses.newpad(p_h, p_w + 10)
 
     # row numbers
-    for j in range(h3 - 1):
-        row = finfo.row + j - (h3 - 1) / 2
+    for j in range(p_h - 1):
+        row = finfo.row + j - (p_h - 1) / 2
         if row < 0 or row >= finfo.num_rows:
             row = ''
-        if j == (h3 - 1) / 2:
+        if j == (p_h - 1) / 2:
             pad3.addstr(j + 1, 0, '{0:>3}'.format(row), curses.A_BOLD)
         else:
             pad3.addstr(j + 1, 0, '{0:>3}'.format(row))
 
     # channels
     for chn in range (mod.chn):
-        if 4 + chn * 10 >= w:
+        if 4 + chn * 10 >= p_w:
             break
         pad3.addstr(0, 4 + chn * 10, '{0:^10}'
                         .format(chn + 1), curses.A_REVERSE)
 
         # rows
-        for j in range(h3 - 1):
-            row = finfo.row + j - (h3 - 1) / 2
+        for j in range(p_h - 1):
+            row = finfo.row + j - (p_h - 1) / 2
             if row < 0 or row >= finfo.num_rows:
                 evstr = ''
             else:
                 event = xmp.get_event(finfo.pattern, row, chn)
                 evstr = show_event(event)
-            if j == (h3 - 1) / 2:
+            if j == (p_h - 1) / 2:
                 pad3.addstr(j + 1, 4 + chn * 10, evstr, curses.A_BOLD)
             else:
                 pad3.addstr(j + 1, 4 + chn * 10, evstr)
 
-    pad3.noutrefresh(0, 0,  h + 4 + 2, 0,  height - 1, width - 1) 
+    pad3.noutrefresh(0, 0,  p_x + 4 + 2, 0,  height - 1, width - 1) 
 
+def show_info(minfo, finfo, vols, old_row):
+    """Draw information screen with instruments and volume bars."""
+    mod = minfo.mod[0]
+
+    (height, width) = stdscr.getmaxyx() 
+
+    if finfo.row != old_row:
+        header_info(height, width, finfo, mod)
+        track_info(height, width, finfo, mod)
+        old_row = finfo.row
+
+    channel_info(height, width, minfo, finfo, vols)
     curses.doupdate()
+    return old_row
     
 def play(filename):
     """Load and play the module file."""
@@ -186,11 +200,12 @@ def play(filename):
     stream.start_stream()
     finfo = Xmp.frame_info()
 
+    old_row = -1
     while stream.is_active():
         lock.acquire()
         xmp.get_frame_info(finfo)
         lock.release()
-        show_info(minfo, finfo, vols)
+        old_row = show_info(minfo, finfo, vols, old_row)
         sys.stdout.flush()
         time.sleep(0.05)
     
