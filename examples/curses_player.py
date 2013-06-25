@@ -148,7 +148,7 @@ def channel_info(height, width, minfo, finfo, vols):
             print vols[i]
 
         pane.addstr(i - ofs, col, '{0:>2}:{1:<22} {2:<12}'.format(i + 1,
-                      ins_text, '=' * vols[i]))
+                      ins_text[:22], '=' * vols[i]))
     pane.noutrefresh()
 
 def track_info(height, width, finfo, mod):
