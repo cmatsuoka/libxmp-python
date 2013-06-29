@@ -34,22 +34,35 @@ def cb_player(in_data, frame_count, time_info, status):
     return (data, pyaudio.paContinue)
 
 def stop():
+    """Exit handler."""
     example.stop()
 
 class AnimationThread(QThread) :
+    """Animation update thread
+
+    Emit periodic update signals to refresh the oscilloscope graph.
+
+    """
     def __init__(self):
         QThread.__init__(self) 
         self._run = True
 
     def stop(self):
+        """Stop the signal thread."""
         self._run = False
 
     def run(self):
+        """Emit update signals in a loop."""
         while self._run == True:
             self.emit(SIGNAL("update_request"))
             time.sleep(0.05)
 
 class Example(QWidget):
+    """Our oscilloscope view
+
+    Display the module PCM data in a oscilloscope-style graph
+
+    """
     def __init__(self):
         super(Example, self).__init__()
         self.resize(480, 360)
@@ -60,7 +73,8 @@ class Example(QWidget):
         self._thread.start()
         self.show()
 
-    def paintEvent(self, e):
+    def paintEvent(self, event):
+        """Draw the oscilloscope."""
         lock.acquire()
         if (end_flag):
             self._thread.stop()
@@ -98,6 +112,7 @@ class Example(QWidget):
         self._stream.start_stream()
 
     def stop(self):
+        """Stop oscilloscope updates and deinitialize the player."""
         self._thread.stop()
         self._stream.stop_stream()
         self._stream.close()
