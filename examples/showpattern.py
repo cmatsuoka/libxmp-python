@@ -11,54 +11,48 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pyxmp import Xmp
 
 
-def display_pattern(xmp, num):
+def display_pattern(module, num):
     notes = [ 'C ', 'C#', 'D ', 'D#', 'E ', 'F ',
               'F#', 'G ', 'G#', 'A ', 'A#', 'B ' ]
 
-    mod = xmp.get_module_info().mod[0]
- 
-    print "PATTERN %02x" % (num)
+    pattern = module.get_pattern(num)
+    print 'PATTERN {0:02x}'.format(num)
 
-    rows = mod.xxp[num][0].rows
-    channels = mod.chn;
+    for i in range(pattern.rows):
+        sys.stdout.write('{0:02X}|'.format(i))
 
-    for i in range(rows):
-        sys.stdout.write("%02X|" % (i))
-
-        for j in range(channels):
-            event = xmp.get_event(num, i, j)
+        for j in range(module.chn):
+            event = module.get_event(num, i, j)
             
             if event.note == 0:
-                sys.stdout.write("---")
+                sys.stdout.write('---')
             elif event.note > 128:
-                sys.stdout.write("===")
+                sys.stdout.write('===')
             else:
                 n = (event.note - 1) % 12
                 o = (event.note - 1) / 12
-                sys.stdout.write("%s%d" % (notes[n], o))
+                sys.stdout.write('{0}{1}'.format(notes[n], o))
 
-            sys.stdout.write(" ")
+            sys.stdout.write(' ')
 
             if event.ins == 0:
-                sys.stdout.write("--")
+                sys.stdout.write('--')
             else:
-                sys.stdout.write("%02x" % (event.ins - 1))
+                sys.stdout.write('{0:02x}'.format(event.ins - 1))
 
-            sys.stdout.write("|")
-        sys.stdout.write("\n")
+            sys.stdout.write('|')
+        sys.stdout.write('\n')
 
 if len(sys.argv) < 3:
-    print "Usage: %s <module> <patnum>" % (os.path.basename(sys.argv[0]))
+    print 'Usage: {0} <module> <patnum>'.format(os.path.basename(sys.argv[0]))
     sys.exit(1)
 
 xmp = Xmp()
 
 try:
-    xmp.load_module(sys.argv[1])
+    module = xmp.load_module(sys.argv[1])
 except IOError, error:
     sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
     sys.exit(1)
 
-xmp.start_player(44100, 0)
-
-display_pattern(xmp, int(sys.argv[2]))
+display_pattern(module, int(sys.argv[2]))

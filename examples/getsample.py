@@ -12,13 +12,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pyxmp import Xmp
 
 
-def extract_sample(xmp, insnum, num):
-    sample = xmp.get_sample(insnum, num)
-    filename = "sample-%02x-%02x.wav" % (insnum, num)
+def extract_sample(module, inst, num, filename):
+    sample = module.get_sample(inst.sub[num].sid)
     length = sample.len
 
     if sample.len == 0:
-        print "Skip empty sample %d" % (num)
+        print 'Skip empty sample {0}'.format(num)
         return
 
     if sample.flg & Xmp.SAMPLE_16BIT:
@@ -27,31 +26,32 @@ def extract_sample(xmp, insnum, num):
     else:
         sample_width = 1
 
-    print "Extract sample %d as %s (%d bytes)" % (num, filename, length)
+    print 'Extract sample {0} as {1} ({2} bytes)'.format(num, filename, length)
 
     w = wave.open(filename, 'w');
     w.setnchannels(1)
     w.setsampwidth(sample_width)
     w.setframerate(16000)
-    w.writeframes(Xmp.get_sample_data(sample))
+    w.writeframes(sample.get_data())
 
-def extract_instrument(xmp, num):
-    inst = xmp.get_module().xxi[num]
-    print 'Instrument %d ("%s") has %d samples' % (num, inst.name, inst.nsm)
+def extract_instrument(module, num):
+    inst = module.get_instrument(num)
+    print 'Instrument {0} ("{1.name}") has {1.nsm} samples'.format(num, inst)
     for i in range (inst.nsm):
-        extract_sample(xmp, num, i)
+        filename = 'sample-{0:02x}-{1:02x}.wav'.format(num, i)
+        extract_sample(module, inst, i, filename)
 
 
 if len(sys.argv) < 3:
-    print "Usage: %s <module> <insnum>" % (os.path.basename(sys.argv[0]))
+    print 'Usage: {0} <module> <insnum>'.format(os.path.basename(sys.argv[0]))
     sys.exit(1)
 
 xmp = Xmp()
 
 try:
-    xmp.load_module(sys.argv[1])
+    module = xmp.load_module(sys.argv[1])
 except IOError, error:
     sys.stderr.write('{0}: {1}\n'.format(sys.argv[1], error.strerror))
     sys.exit(1)
 
-extract_instrument(xmp, int(sys.argv[2]))
+extract_instrument(module, int(sys.argv[2]))

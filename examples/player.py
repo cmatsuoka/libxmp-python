@@ -51,7 +51,7 @@ def play(filename):
 
     xmp = Xmp()
     try:
-        xmp.load_module(filename)
+        mymod = xmp.load_module(filename)
     except IOError, error:
         sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
         sys.exit(1)
@@ -61,7 +61,6 @@ def play(filename):
     xmp.start_player(44100, 0)
     minfo = xmp.get_module_info()
     
-    mymod = minfo.mod[0]
     show_info(mymod)
     
     # reuse this object

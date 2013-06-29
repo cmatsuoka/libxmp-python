@@ -29,19 +29,18 @@ def cb_callback(in_data, frame_count, time_info, status):
 def play(filename):
     """Load and play the module file."""
     try:
-        xmp.load_module(filename)
+        mod = xmp.load_module(filename)
     except IOError, error:
         sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
         sys.exit(1)
     
     # Display module info
-    mod = xmp.get_module_info().mod[0]
     print 'Name: {0.name}\nType: {0.type}'.format(mod)
     print 'Instruments: {0.ins}   Samples: {0.smp}'.format(mod)
     for i in range (mod.ins):
-        ins = mod.xxi[i]
-        if len(ins.name.rstrip()) > 0:
-            print ' {0:>2} {1.name}'.format(i, mod.xxi[i])
+        inst = mod.get_instrument(i)
+        if len(inst.name.rstrip()) > 0:
+            print ' {0:>2} {1.name}'.format(i, inst)
     
     audio = pyaudio.PyAudio()
     stream = audio.open(format = audio.get_format_from_width(WORD_SIZE),

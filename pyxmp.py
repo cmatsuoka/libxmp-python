@@ -1435,7 +1435,96 @@ xmp_frame_info = struct_xmp_frame_info
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
-class Xmp:
+class InvalidKeyException(Exception):
+    pass
+
+class InvalidInstrumentException(Exception):
+    pass
+
+class InvalidSampleException(Exception):
+    pass
+
+class InvalidFormatException(Exception):
+    pass
+
+class LoadErrorException(Exception):
+    pass
+
+class DepackErrorException(Exception):
+    pass
+
+class Sample(object):
+    """A sound sample
+
+    A module sample contains raw PCM data and metadata such as word size,
+    length or loop points.
+
+    """
+    def __init__(self, xxs):
+        self._xxs = xxs
+
+    def __getattr__(self, n):
+        return getattr(self._xxs, n)
+
+    def get_data(self):
+        buf = ctypes.cast(self.data, POINTER(c_int8))
+        if self.flg & XMP_SAMPLE_16BIT:
+            width = 2
+        else:
+            width = 1
+        return ctypes.string_at(buf, self.len * width)
+
+class Instrument(object):
+    """An instrument
+
+    A module instrument contains envelope data, subinstruments and
+    subinstrument mapping.
+
+    """
+    def __init__(self, xxi):
+        self._xxi = xxi
+
+    def __getattr__(self, n):
+        return getattr(self._xxi, n)
+
+    def map_subinstrument(self, key):
+        if key >= XMP_MAX_KEYS:
+            raise InvalidKeyExeption
+        return self._xxi.map[num].ins
+
+class Module(object):
+    """
+
+    Our module.
+
+    """
+    def __init__(self, mod):
+        self._mod = mod
+
+    def __getattr__(self, n):
+        return getattr(self._mod, n)
+
+    def get_instrument(self, num):
+        return Instrument(self._mod.xxi[num])
+
+    def get_sample(self, num):
+        return Sample(self._mod.xxs[num])
+
+    def get_pattern(self, num):
+        return self.xxp[num][0]
+
+    def get_track(self, num):
+        return self.xxt[num][0]
+
+    def get_event(self, pat, row, chn):
+        if pat >= self.pat or chn >= self.chn:
+            return None
+        if row >= self.get_pattern(pat).rows:
+            return None
+        trk = self.get_pattern(pat).index[chn]
+        return self.get_track(trk).event[row]
+
+class Xmp(object):
     """A multi format module player
 
     Xmp implements a full-featured module player that supports
@@ -1537,6 +1626,9 @@ class Xmp:
         "Invalid parameter"
     ]
 
+    def get_module(self):
+        return self._module
+
     # Regular C API calls for libxmp 4.1
 
     def __init__(self):
@@ -1553,6 +1645,8 @@ class Xmp:
             raise IOError(-code, self._error[-code])
         self._module_info = struct_xmp_module_info()
         xmp_get_module_info(self._ctx, pointer(self._module_info))
+        self._module = Module(self._module_info.mod[0])
+        return self._module
     
     @staticmethod
     def test_module(path, info = struct_xmp_test_info()):
@@ -1679,37 +1773,6 @@ class Xmp:
         buf = ctypes.cast(info.buffer, POINTER(c_int8))
         return ctypes.string_at(buf, info.buffer_size);
 
-    def get_module(self):
-        return self._module_info.mod[0]
-
-    def get_event(self, pat, row, chn):
-        mod = self.get_module()
-        if pat >= mod.pat or chn >= mod.chn:
-            return None
-        if row >= mod.xxp[pat][0].rows:
-            return None
-        trk = mod.xxp[pat][0].index[chn]
-        return mod.xxt[trk][0].event[row]
-
-    def get_sample(self, insnum, subnum):
-        mod = self.get_module()
-        if insnum >= mod.ins:
-            return None
-        if subnum >= mod.xxi[insnum].nsm:
-            return None
-        smpnum = mod.xxi[insnum].sub[subnum].sid
-        return mod.xxs[smpnum]
-
-    @staticmethod
-    def get_sample_data(sample):
-        buf = ctypes.cast(sample.data, POINTER(c_int8))
-
-        if sample.flg & XMP_SAMPLE_16BIT:
-            width = 2
-        else:
-            width = 1
-
-        return ctypes.string_at(buf, sample.len * width)
 
 # End "interface.py"
 

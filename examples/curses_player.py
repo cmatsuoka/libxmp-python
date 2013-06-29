@@ -110,7 +110,7 @@ def channel_info(height, width, minfo, finfo, vols):
     """Display instrument and volume bars in middle pane."""
     pane = Pane(4, 0, (height - 4) / 2, width, True)
 
-    mod = minfo.mod[0]
+    mod = xmp.get_module()
 
     for i in range(mod.chn):
         if i >= pane.lines * 2:
@@ -178,7 +178,7 @@ def track_info(height, width, finfo, mod):
             if row < 0 or row >= finfo.num_rows:
                 evstr = ''
             else:
-                event = xmp.get_event(finfo.pattern, row, chn)
+                event = mod.get_event(finfo.pattern, row, chn)
                 evstr = show_event(event)
             if j == (pane.lines - 1) / 2:
                 pane.addstr(j + 1, 4 + chn * 10, evstr, curses.A_BOLD)
@@ -190,13 +190,12 @@ def track_info(height, width, finfo, mod):
 def play(filename):
     """Load and play the module file."""
     try:
-        xmp.load_module(filename)
+        mod = xmp.load_module(filename)
     except IOError, error:
         sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
         sys.exit(1)
     
     minfo = xmp.get_module_info()
-    mod = minfo.mod[0]
     vols = [ 0 ] * mod.chn
 
     audio = pyaudio.PyAudio()
