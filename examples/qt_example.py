@@ -69,10 +69,12 @@ class Example(QWidget):
             self._qp.begin(self)
             #self._qp.setPen(Qt.red)
             width = self.size().width()
-            height = self.size().height()
+            height = self.size().height() / 2
             for i in range(width):
-                x = struct.unpack('b', data[i * 4 + 1])[0]
-                self._qp.drawPoint(i, height / 2 + height / 2 * x / 128)
+                pos = i * 4
+                left = struct.unpack('=h', data[pos:pos + 2])[0]
+                right = struct.unpack('=h', data[pos + 2:pos + 4])[0]
+                self._qp.drawPoint(i, height + height * (left + right) / 65536)
             self._qp.end()
         lock.release()
 
