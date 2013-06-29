@@ -22,6 +22,20 @@ WORD_SIZE = 2
 SAMPLE_RATE = 44100
 
 
+def cb_player(in_data, frame_count, time_info, status):
+    """Pyaudio callback function."""
+    global data, end_flag
+    size = frame_count * CHANNELS * WORD_SIZE
+    lock.acquire()
+    data = xmp.play_buffer(size)
+    if data == None:
+        end_flag = True
+    lock.release()
+    return (data, pyaudio.paContinue)
+
+def stop():
+    example.stop()
+
 class AnimationThread(QThread) :
     def __init__(self):
         QThread.__init__(self) 
@@ -48,58 +62,47 @@ class Example(QWidget):
 
     def paintEvent(self, e):
         lock.acquire()
-        self._qp.begin(self)
-        #self._qp.setPen(Qt.red)
-        width = self.size().width()
-        height = self.size().height()
-        
-        for i in range(width):
-            x = struct.unpack('b', data[i * 4 + 1])[0]
-            self._qp.drawPoint(i, height / 2 + height / 2 * x / 128)
+        if (end_flag):
+            self._thread.stop()
+            app.quit()
+        else:
+            self._qp.begin(self)
+            #self._qp.setPen(Qt.red)
+            width = self.size().width()
+            height = self.size().height()
+            for i in range(width):
+                x = struct.unpack('b', data[i * 4 + 1])[0]
+                self._qp.drawPoint(i, height / 2 + height / 2 * x / 128)
+            self._qp.end()
         lock.release()
 
-        self._qp.end()
+    def play(self, filename):
+        """Load and play the module file."""
+        try:
+            mod = xmp.load_module(filename)
+        except IOError, error:
+            sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
+            sys.exit(1)
+    
+        # Display module info
+        print 'Name: {0.name}\nType: {0.type}'.format(mod)
+    
+        self._audio = pyaudio.PyAudio()
+        self._stream = self._audio.open(
+                        format = self._audio.get_format_from_width(WORD_SIZE),
+                        channels = CHANNELS, rate = SAMPLE_RATE,
+                        output = True, stream_callback = cb_player)
+        xmp.start_player(SAMPLE_RATE)
+        self._stream.start_stream()
 
     def stop(self):
         self._thread.stop()
-        
-def cb_player(in_data, frame_count, time_info, status):
-    """Pyaudio callback function."""
-    global data
-    size = frame_count * CHANNELS * WORD_SIZE
-    lock.acquire()
-    data = xmp.play_buffer(size)
-    lock.release()
-    return (data, pyaudio.paContinue)
+        self._stream.stop_stream()
+        self._stream.close()
+        self._audio.terminate()
+        xmp.end_player()
+        xmp.release_module()
 
-
-def play(filename):
-    """Load and play the module file."""
-    try:
-        mod = xmp.load_module(filename)
-    except IOError, error:
-        sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
-        sys.exit(1)
-
-    # Display module info
-    print 'Name: {0.name}\nType: {0.type}'.format(mod)
-
-    audio = pyaudio.PyAudio()
-    stream = audio.open(format = audio.get_format_from_width(WORD_SIZE),
-                    channels = CHANNELS, rate = SAMPLE_RATE,
-                    output = True, stream_callback = cb_player)
-
-    xmp.start_player(SAMPLE_RATE)
-    stream.start_stream()
-
-def stop():
-    example.stop()
-    stream.stop_stream()
-    stream.close()
-    audio.terminate()
-    xmp.end_player()
-    xmp.release_module()
-        
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print "Usage: {0} <module>".format(os.path.basename(sys.argv[0]))
@@ -110,7 +113,8 @@ if __name__ == '__main__':
 
     xmp = Xmp()
     lock = Lock()
-    play(sys.argv[1])
+    end_flag = False
+    example.play(sys.argv[1])
     atexit.register(stop)
 
     sys.exit(app.exec_())
