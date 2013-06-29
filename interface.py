@@ -256,20 +256,22 @@ class Xmp:
         trk = mod.xxp[pat][0].index[chn]
         return mod.xxt[trk][0].event[row]
 
-    def get_sample_data(self, num):
+    def get_sample(self, insnum, subnum):
         mod = self.get_module()
-
-        if num < mod.smp:
-            sample = mod.xxs[num]
-            buf = ctypes.cast(sample.data, POINTER(c_int8))
-
-            if sample.flg & XMP_SAMPLE_16BIT:
-                width = 2
-            else:
-                width = 1
-
-            return ctypes.string_at(buf, sample.len * width)
-        else:
+        if insnum >= mod.ins:
             return None
+        if subnum >= mod.xxi[insnum].nsm:
+            return None
+        smpnum = mod.xxi[insnum].sub[subnum].sid
+        return mod.xxs[smpnum]
 
+    @staticmethod
+    def get_sample_data(sample):
+        buf = ctypes.cast(sample.data, POINTER(c_int8))
 
+        if sample.flg & XMP_SAMPLE_16BIT:
+            width = 2
+        else:
+            width = 1
+
+        return ctypes.string_at(buf, sample.len * width)

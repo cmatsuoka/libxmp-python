@@ -13,9 +13,7 @@ from pyxmp import Xmp
 
 
 def extract_sample(xmp, insnum, num):
-    mod = xmp.get_module()
-    smpnum = mod.xxi[insnum].sub[num].sid
-    sample = mod.xxs[smpnum]
+    sample = xmp.get_sample(insnum, num)
     filename = "sample-%02x-%02x.wav" % (insnum, num)
     length = sample.len
 
@@ -35,7 +33,7 @@ def extract_sample(xmp, insnum, num):
     w.setnchannels(1)
     w.setsampwidth(sample_width)
     w.setframerate(16000)
-    w.writeframes(xmp.get_sample_data(smpnum))
+    w.writeframes(Xmp.get_sample_data(sample))
 
 def extract_instrument(xmp, num):
     inst = xmp.get_module().xxi[num]
