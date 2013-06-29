@@ -11,21 +11,21 @@ class TestTests(unittest.TestCase):
     def test_test_module_itz(self):
         info = Xmp.test_info()
         ret = Xmp.test_module('test.itz', info)
-        self.assertEqual(ret, True)
+        self.assertNotEqual(ret, None)
         self.assertEqual(info.name, 'test')
         self.assertEqual(info.type, 'Impulse Tracker (IT)')
 
     def test_test_module_xm(self):
         info = Xmp.test_info()
         ret = Xmp.test_module('silent-blinkys.xm', info)
-        self.assertEqual(ret, True)
+        self.assertNotEqual(ret, None)
         self.assertEqual(info.name, 'Sil_Blinky Intro')
         self.assertEqual(info.type, 'Fast Tracker II (XM)')
 
     def test_test_module_invalid(self):
         info = Xmp.test_info()
         ret = Xmp.test_module('buffer.raw', info)
-        self.assertEqual(ret, False)
+        self.assertEqual(ret, None)
 
 class LoadTests(unittest.TestCase):
     def setUp(self):

@@ -1551,6 +1551,8 @@ class Xmp:
         if code < 0:
             #raise IOError(code, os.strerror(code))
             raise IOError(-code, self._error[-code])
+        self._module_info = struct_xmp_module_info()
+        xmp_get_module_info(self._ctx, pointer(self._module_info))
     
     @staticmethod
     def test_module(path, info = struct_xmp_test_info()):
@@ -1598,11 +1600,15 @@ class Xmp:
     def inject_event(self, chn, event):
         xmp_inject_event(self._ctx, chn, event)
 
-    def get_module_info(self, info = struct_xmp_module_info()):
-        xmp_get_module_info(self._ctx, pointer(info))
-        return info
+    def get_module_info(self, info = None):
+        if info == None:
+            return self._module_info
+        else:
+            info.__dict__.update(self._module_info.__dict__)
+            return info
 
-    def get_format_list(self):
+    @staticmethod
+    def get_format_list():
         format_list = xmp_get_format_list()
         i = 0
         l = []
@@ -1673,22 +1679,34 @@ class Xmp:
         buf = ctypes.cast(info.buffer, POINTER(c_int8))
         return ctypes.string_at(buf, info.buffer_size);
 
+    def get_module(self):
+        return self._module_info.mod[0]
+
     def get_event(self, pat, row, chn):
-        mod = self.get_module_info().mod[0]
+        mod = self.get_module()
+        if pat >= mod.pat or chn >= mod.chn:
+            return None
+        if row >= mod.xxp[pat][0].rows:
+            return None
         trk = mod.xxp[pat][0].index[chn]
         return mod.xxt[trk][0].event[row]
 
-    def get_sample(self, num):
-        mod = self.get_module_info().mod[0]
-        sample = mod.xxs[num]
-        buf = ctypes.cast(sample.data, POINTER(c_int8))
+    def get_sample_data(self, num):
+        mod = self.get_module()
 
-        if sample.flg & XMP_SAMPLE_16BIT:
-            width = 2
+        if num < mod.smp:
+            sample = mod.xxs[num]
+            buf = ctypes.cast(sample.data, POINTER(c_int8))
+
+            if sample.flg & XMP_SAMPLE_16BIT:
+                width = 2
+            else:
+                width = 1
+
+            return ctypes.string_at(buf, sample.len * width)
         else:
-            width = 1
+            return None
 
-        return ctypes.string_at(buf, sample.len * width)
 
 
 # End "interface.py"

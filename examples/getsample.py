@@ -12,7 +12,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pyxmp import Xmp
 
 
-def extract_sample(xmp, mod, insnum, num):
+def extract_sample(xmp, insnum, num):
+    mod = xmp.get_module()
     smpnum = mod.xxi[insnum].sub[num].sid
     sample = mod.xxs[smpnum]
     filename = "sample-%02x-%02x.wav" % (insnum, num)
@@ -34,13 +35,13 @@ def extract_sample(xmp, mod, insnum, num):
     w.setnchannels(1)
     w.setsampwidth(sample_width)
     w.setframerate(16000)
-    w.writeframes(xmp.get_sample(smpnum))
+    w.writeframes(xmp.get_sample_data(smpnum))
 
-def extract_instrument(xmp, mod, num):
-    inst = mod.xxi[num]
+def extract_instrument(xmp, num):
+    inst = xmp.get_module().xxi[num]
     print 'Instrument %d ("%s") has %d samples' % (num, inst.name, inst.nsm)
     for i in range (inst.nsm):
-        extract_sample(xmp, mod, num, i)
+        extract_sample(xmp, num, i)
 
 
 if len(sys.argv) < 3:
@@ -55,7 +56,4 @@ except IOError, error:
     sys.stderr.write('{0}: {1}\n'.format(sys.argv[1], error.strerror))
     sys.exit(1)
 
-xmp.start_player(44100, 0)
-info = xmp.get_module_info()
-
-extract_instrument(xmp, info.mod[0], int(sys.argv[2]))
+extract_instrument(xmp, int(sys.argv[2]))
