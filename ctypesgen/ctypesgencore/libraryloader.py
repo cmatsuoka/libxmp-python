@@ -64,9 +64,9 @@ class LibraryLoader(object):
             # libraries not being loadable, resulting in "Symbol not found"
             # errors
             if sys.platform == 'darwin':
-                return ctypes.CDLL(path, ctypes.RTLD_GLOBAL)
+                return ctypes.CDLL(path, ctypes.RTLD_GLOBAL, use_errno=True)
             else:
-                return ctypes.cdll.LoadLibrary(path)
+                return ctypes.CDLL(path, use_errno=True)
         except OSError,e:
             raise ImportError(e)
 
