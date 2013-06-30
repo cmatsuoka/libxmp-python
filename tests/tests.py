@@ -6,10 +6,10 @@ import os
 import unittest
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pyxmp import Xmp
+from pyxmp import Xmp, InvalidParameterError
 
 
-class TestTests(unittest.TestCase):
+class SetupTests(unittest.TestCase):
     def test_test_module_itz(self):
         info = Xmp.test_info()
         ret = Xmp.test_module('test.itz', info)
@@ -28,6 +28,16 @@ class TestTests(unittest.TestCase):
         info = Xmp.test_info()
         ret = Xmp.test_module('buffer.raw', info)
         self.assertEqual(ret, None)
+
+    def test_start_player(self):
+        xmp = Xmp()
+        xmp.load_module('test.itz')
+        try:
+            xmp.start_player(Xmp.MAX_SRATE + 1)
+        except InvalidParameterError:
+            z = True
+        self.assertEqual(z, True)
+
 
 class LoadTests(unittest.TestCase):
     def setUp(self):
@@ -50,6 +60,14 @@ class LoadTests(unittest.TestCase):
         except IOError, e:
             z = e
         self.assertEqual(z.errno, Xmp.ERROR_FORMAT)
+
+    def test_load_module_missing(self):
+        try:
+            self.xmp.load_module('not.there')
+        except IOError, e:
+            z = e
+        self.assertEqual(z.errno, Xmp.ERROR_SYSTEM)
+
 
 class MixerTests(unittest.TestCase):
     def setUp(self):
@@ -135,7 +153,7 @@ class ModuleTests(unittest.TestCase):
     def test_get_instrument_invalid(self):
         try:
             inst = self.mod.get_instrument(20)
-        except Xmp.RangeError:
+        except InvalidParameterError:
             z = True
         self.assertEqual(z, True)
 
@@ -148,7 +166,7 @@ class ModuleTests(unittest.TestCase):
         try:
             inst = self.mod.get_instrument(2)
             sub = inst.get_subinstrument(2)
-        except Xmp.RangeError:
+        except InvalidParameterError:
             z = True
         self.assertEqual(z, True)
 
@@ -164,13 +182,13 @@ class ModuleTests(unittest.TestCase):
     def test_get_sample_invalid(self):
         try:
             sample = self.mod.get_sample(30)
-        except Xmp.RangeError:
+        except InvalidParameterError:
             z = True
         self.assertEqual(z, True)
 
 if __name__ == '__main__':
 
-    tests = [ TestTests, LoadTests, MixerTests, PlayerTests, ModuleTests ]
+    tests = [ SetupTests, LoadTests, MixerTests, PlayerTests, ModuleTests ]
 
     unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(
         [ unittest.TestLoader().loadTestsFromTestCase(i) for i in tests ]))

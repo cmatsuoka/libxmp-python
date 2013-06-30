@@ -373,9 +373,9 @@ class LibraryLoader(object):
             # libraries not being loadable, resulting in "Symbol not found"
             # errors
             if sys.platform == 'darwin':
-                return ctypes.CDLL(path, ctypes.RTLD_GLOBAL)
+                return ctypes.CDLL(path, ctypes.RTLD_GLOBAL, use_errno=True)
             else:
-                return ctypes.cdll.LoadLibrary(path)
+                return ctypes.CDLL(path, use_errno=True)
         except OSError,e:
             raise ImportError(e)
 
@@ -1435,12 +1435,18 @@ xmp_frame_info = struct_xmp_frame_info
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
-def _check_range(parm, num, lower, upper):
-    if num < lower or num > upper:
-        raise Xmp.RangeError(parm, num, lower, upper)
-    else:
-        return True
+def _check_range(parm, val, lower, upper):
+    if val < lower or val > upper:
+        raise InvalidParameterError(
+            'Invalid {0} #{1}, valid {0} range is {2} to {3}'
+            .format(parm, val ,lower, upper))
 
+class InvalidParameterError(Exception):
+    pass
+    
+class InternalError(Exception):
+    pass
+    
 class Sample(object):
     """A sound sample
 
@@ -1457,10 +1463,9 @@ class Sample(object):
     def get_data(self):
         buf = ctypes.cast(self.data, POINTER(c_int8))
         if self.flg & XMP_SAMPLE_16BIT:
-            width = 2
+            return ctypes.string_at(buf, self.len * 2)
         else:
-            width = 1
-        return ctypes.string_at(buf, self.len * width)
+            return ctypes.string_at(buf, self.len)
 
 class SubInstrument(object):
     """A sub-instrument
@@ -1626,7 +1631,7 @@ class Xmp(object):
     PERIOD_BASE         = XMP_PERIOD_BASE
 
     # Error messages
-
+    
     _error = [
         "No error",
         "End of module",
@@ -1637,14 +1642,6 @@ class Xmp(object):
         "System error",
         "Invalid parameter"
     ]
-
-    # Exceptions
-
-    class RangeError(Exception):
-        def __init__(self, parm, val, lower, upper):
-            Exception.__init__(self,
-                'Invalid {0} #{1}, valid {0} range is {2} to {3}'
-                .format(parm, val ,lower, upper))
     
     def get_module(self):
         return self._module
@@ -1661,14 +1658,18 @@ class Xmp(object):
         """Load a module file."""
         code = xmp_load_module(self._ctx, path)
         if code < 0:
-                # ctypesgen doesn't handle errno
-                #raise IOError(code, os.strerror(code))
-                raise IOError(-code, self._error[-code])
+            if code == -XMP_ERROR_SYSTEM:
+                errno = get_errno()
+                raise IOError(-code, '{0}: {1}'
+                    .format(Xmp._error[-code], os.strerror(errno)))
+            else:
+                raise IOError(-code, Xmp._error[-code])
+    
         self._module_info = struct_xmp_module_info()
         xmp_get_module_info(self._ctx, pointer(self._module_info))
         self._module = Module(self._module_info.mod[0])
         return self._module
-    
+
     @staticmethod
     def test_module(path, info = struct_xmp_test_info()):
         """Test if a file is a valid module."""
@@ -1688,8 +1689,18 @@ class Xmp(object):
 
     def start_player(self, freq, mode = 0):
         """Start playing the currently loaded module."""
-        return xmp_start_player(self._ctx, freq, mode)
-
+        code = xmp_start_player(self._ctx, freq, mode)
+        if code < 0:
+            if code == -XMP_ERROR_INTERNAL:
+                raise InternalError()
+            elif code == -XMP_ERROR_INVALID:
+                raise InvalidParameterError(
+                    'Invalid sampling rate {0}Hz'.format(freq))
+            elif code == -XMP_ERROR_SYSTEM:
+                errno = get_errno()
+                raise OSError(-code,
+                    '{0}: {1}'.format(Xmp._error[-code], os.strerror(errno)))
+    
     def play_frame(self):
         """Play one frame of the module."""
         return xmp_play_frame(self._ctx) == 0
@@ -1699,9 +1710,9 @@ class Xmp(object):
             buf = self.buffer(size)
         ret = xmp_play_buffer(self._ctx, buf, size, loop)
         if ret == 0:
-		return buf
+	    return buf
 	else:
-		return None
+	    return None
 
     def get_frame_info(self, info = struct_xmp_frame_info()):
         """Retrieve current frame information."""
@@ -1763,7 +1774,10 @@ class Xmp(object):
         return xmp_channel_vol(self._ctx, chn, val)
 
     def set_player(self, param, value):
-        return xmp_set_player(self._ctx, param, value)
+        code = xmp_set_player(self._ctx, param, value)
+        if code < 0:
+            if code == XMP_ERROR_INVALID:
+                raise InvalidParameterError('Invalid value {0}'.format(value))
 
     def get_player(self, param):
         return xmp_get_player(self._ctx, param)
