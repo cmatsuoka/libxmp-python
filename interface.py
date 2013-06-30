@@ -1,7 +1,10 @@
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
-class InvalidKeyException(Exception):
-    pass
+def _check_range(parm, num, lower, upper):
+    if num < lower or num > upper:
+        raise Xmp.RangeError(parm, num, lower, upper)
+    else:
+        return True
 
 class Sample(object):
     """A sound sample
@@ -51,14 +54,11 @@ class Instrument(object):
         return getattr(self._xxi, n)
 
     def get_subinstrument(self, num):
-        if num >= self._xxi.nsm:
-            return None
-        else:
-            return SubInstrument(self._xxi.sub[num])
+        _check_range('sub-instrument', num, 0, self._xxi.nsm - 1)
+        return SubInstrument(self._xxi.sub[num])
 
     def map_subinstrument(self, key):
-        if key >= XMP_MAX_KEYS:
-            raise InvalidKeyExeption
+        _check_range('key', key, 0, XMP_MAX_KEYS - 1)
         return self._xxi.map[key].ins
 
 class Module(object):
@@ -74,25 +74,29 @@ class Module(object):
         return getattr(self._mod, n)
 
     def get_instrument(self, num):
-        if num >= self._mod.ins:
-            return None
-        else:
-            return Instrument(self._mod.xxi[num])
+        _check_range('instrument', num, 0, self.ins - 1)
+        return Instrument(self._mod.xxi[num])
 
     def get_sample(self, num):
+        _check_range('sample', num, 0, self.smp - 1)
         return Sample(self._mod.xxs[num])
 
+    def get_order(self, num):
+        _check_range('position', num, 0, self.len - 1)
+        return self.xxo[num]
+
     def get_pattern(self, num):
+        _check_range('pattern', num, 0, self.pat - 1)
         return self.xxp[num][0]
 
     def get_track(self, num):
+        _check_range('track', num, 0, self.trk - 1)
         return self.xxt[num][0]
 
     def get_event(self, pat, row, chn):
-        if pat >= self.pat or chn >= self.chn:
-            return None
-        if row >= self.get_pattern(pat).rows:
-            return None
+        _check_range('pattern', pat, 0, self.pat - 1)
+        _check_range('channel', chn, 0, self.chn - 1)
+        _check_range('row', row, 0, self.get_pattern(pat).rows - 1)
         trk = self.get_pattern(pat).index[chn]
         return self.get_track(trk).event[row]
 
@@ -199,6 +203,14 @@ class Xmp(object):
         "Invalid parameter"
     ]
 
+    # Exceptions
+
+    class RangeError(Exception):
+        def __init__(self, parm, val, lower, upper):
+            Exception.__init__(self,
+                'Invalid {0} #{1}, valid {0} range is {2} to {3}'
+                .format(parm, val ,lower, upper))
+    
     def get_module(self):
         return self._module
 
@@ -214,6 +226,7 @@ class Xmp(object):
         """Load a module file."""
         code = xmp_load_module(self._ctx, path)
         if code < 0:
+                # ctypesgen doesn't handle errno
                 #raise IOError(code, os.strerror(code))
                 raise IOError(-code, self._error[-code])
         self._module_info = struct_xmp_module_info()

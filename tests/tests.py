@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 import sys
 import os
@@ -6,6 +7,7 @@ import unittest
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pyxmp import Xmp
+
 
 class TestTests(unittest.TestCase):
     def test_test_module_itz(self):
@@ -46,7 +48,7 @@ class LoadTests(unittest.TestCase):
         try:
             self.xmp.load_module('buffer.raw')
         except IOError, e:
-	    z = e
+            z = e
         self.assertEqual(z.errno, Xmp.ERROR_FORMAT)
 
 class MixerTests(unittest.TestCase):
@@ -105,15 +107,70 @@ class PlayerTests(unittest.TestCase):
         self.assertEqual(fi.pos, 0)
 
     def test_stop_module(self):
-	ret = self.xmp.play_frame()
+        ret = self.xmp.play_frame()
         self.assertEqual(ret, True)
-	self.xmp.stop_module()
-	ret = self.xmp.play_frame()
+        self.xmp.stop_module()
+        ret = self.xmp.play_frame()
         self.assertEqual(ret, False)
  
+class ModuleTests(unittest.TestCase):
+    def setUp(self):
+        self.xmp = Xmp()
+        self.xmp.load_module('silent-blinkys.xm')
+        self.mod = self.xmp.get_module()
+
+    def tearDown(self):
+        self.xmp.release_module()
+
+    def test_get_module(self):
+        self.assertEqual(self.mod.chn, 11)
+        self.assertEqual(self.mod.ins, 9)
+        self.assertEqual(self.mod.smp, 8)
+
+    def test_get_instrument(self):
+        inst = self.mod.get_instrument(2)
+        self.assertEqual(inst.rls, 128)
+        self.assertEqual(inst.aei.flg & Xmp.ENVELOPE_ON, Xmp.ENVELOPE_ON)
+
+    def test_get_instrument_invalid(self):
+        try:
+            inst = self.mod.get_instrument(20)
+        except Xmp.RangeError:
+            z = True
+        self.assertEqual(z, True)
+
+    def test_get_subinstrument(self):
+        inst = self.mod.get_instrument(2)
+        sub = inst.get_subinstrument(0)
+        self.assertEqual(sub.vol, 55)
+
+    def test_get_subinstrument_invalid(self):
+        try:
+            inst = self.mod.get_instrument(2)
+            sub = inst.get_subinstrument(2)
+        except Xmp.RangeError:
+            z = True
+        self.assertEqual(z, True)
+
+    def test_map_subinstrument(self):
+        inst = self.mod.get_instrument(2)
+        num = inst.map_subinstrument(60)
+        self.assertEqual(num, 0)
+
+    def test_get_sample(self):
+        sample = self.mod.get_sample(3)
+        self.assertEqual(sample.len, 64)
+
+    def test_get_sample_invalid(self):
+        try:
+            sample = self.mod.get_sample(30)
+        except Xmp.RangeError:
+            z = True
+        self.assertEqual(z, True)
+
 if __name__ == '__main__':
 
-    tests = [ TestTests, LoadTests, MixerTests, PlayerTests ]
+    tests = [ TestTests, LoadTests, MixerTests, PlayerTests, ModuleTests ]
 
     unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(
         [ unittest.TestLoader().loadTestsFromTestCase(i) for i in tests ]))
