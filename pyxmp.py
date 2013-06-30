@@ -1435,24 +1435,6 @@ xmp_frame_info = struct_xmp_frame_info
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
-class InvalidKeyException(Exception):
-    pass
-
-class InvalidInstrumentException(Exception):
-    pass
-
-class InvalidSampleException(Exception):
-    pass
-
-class InvalidFormatException(Exception):
-    pass
-
-class LoadErrorException(Exception):
-    pass
-
-class DepackErrorException(Exception):
-    pass
-
 class Sample(object):
     """A sound sample
 
@@ -1620,6 +1602,7 @@ class Xmp(object):
         "No error",
         "End of module",
         "Internal error",
+        "Unknown module format",
         "Can't load module",
         "Can't decompress module",
         "System error",
@@ -1641,8 +1624,8 @@ class Xmp(object):
         """Load a module file."""
         code = xmp_load_module(self._ctx, path)
         if code < 0:
-            #raise IOError(code, os.strerror(code))
-            raise IOError(-code, self._error[-code])
+                #raise IOError(code, os.strerror(code))
+                raise IOError(-code, self._error[-code])
         self._module_info = struct_xmp_module_info()
         xmp_get_module_info(self._ctx, pointer(self._module_info))
         self._module = Module(self._module_info.mod[0])

@@ -49,10 +49,11 @@ if len(sys.argv) < 3:
 
 xmp = Xmp()
 
+module = xmp.load_module(sys.argv[1])
 try:
     module = xmp.load_module(sys.argv[1])
 except IOError, error:
-    sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
+    sys.stderr.write('{0}: {1}\n'.format(sys.argv[1], error.strerror))
     sys.exit(1)
 
 display_pattern(module, int(sys.argv[2]))
