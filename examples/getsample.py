@@ -13,7 +13,7 @@ from pyxmp import Xmp
 
 
 def extract_sample(module, inst, num, filename):
-    sample = module.get_sample(inst.sub[num].sid)
+    sample = module.get_sample(inst.get_subinstrument(num).sid)
     length = sample.len
 
     if sample.len == 0:

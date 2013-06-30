@@ -1,5 +1,8 @@
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
+class InvalidKeyException(Exception):
+    pass
+
 class Sample(object):
     """A sound sample
 
@@ -21,6 +24,19 @@ class Sample(object):
             width = 1
         return ctypes.string_at(buf, self.len * width)
 
+class SubInstrument(object):
+    """A sub-instrument
+
+    Each instrument has one or more sub-instruments that can be mapped
+    to different keys.
+
+    """
+    def __init__(self, sub):
+        self._sub = sub
+
+    def __getattr__(self, n):
+        return getattr(self._sub, n)
+
 class Instrument(object):
     """An instrument
 
@@ -34,10 +50,16 @@ class Instrument(object):
     def __getattr__(self, n):
         return getattr(self._xxi, n)
 
+    def get_subinstrument(self, num):
+        if num >= self._xxi.nsm:
+            return None
+        else:
+            return SubInstrument(self._xxi.sub[num])
+
     def map_subinstrument(self, key):
         if key >= XMP_MAX_KEYS:
             raise InvalidKeyExeption
-        return self._xxi.map[num].ins
+        return self._xxi.map[key].ins
 
 class Module(object):
     """
@@ -52,7 +74,10 @@ class Module(object):
         return getattr(self._mod, n)
 
     def get_instrument(self, num):
-        return Instrument(self._mod.xxi[num])
+        if num >= self._mod.ins:
+            return None
+        else:
+            return Instrument(self._mod.xxi[num])
 
     def get_sample(self, num):
         return Sample(self._mod.xxs[num])
