@@ -2,16 +2,10 @@
 
 def _check_range(parm, val, lower, upper):
     if val < lower or val > upper:
-        raise InvalidParameterError(
+        raise LookupError(
             'Invalid {0} #{1}, valid {0} range is {2} to {3}'
             .format(parm, val ,lower, upper))
 
-class InvalidParameterError(Exception):
-    pass
-    
-class InternalError(Exception):
-    pass
-    
 class Sample(object):
     """A sound sample
 
@@ -257,9 +251,9 @@ class Xmp(object):
         code = xmp_start_player(self._ctx, freq, mode)
         if code < 0:
             if code == -XMP_ERROR_INTERNAL:
-                raise InternalError()
+                raise RuntimeError(Xmp._error[-code])
             elif code == -XMP_ERROR_INVALID:
-                raise InvalidParameterError(
+                raise ValueError(
                     'Invalid sampling rate {0}Hz'.format(freq))
             elif code == -XMP_ERROR_SYSTEM:
                 errno = get_errno()
@@ -342,7 +336,7 @@ class Xmp(object):
         code = xmp_set_player(self._ctx, param, value)
         if code < 0:
             if code == XMP_ERROR_INVALID:
-                raise InvalidParameterError('Invalid value {0}'.format(value))
+                raise ValueError('Invalid value {0}'.format(value))
 
     def get_player(self, param):
         return xmp_get_player(self._ctx, param)

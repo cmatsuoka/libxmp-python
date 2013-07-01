@@ -6,7 +6,7 @@ import os
 import unittest
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pyxmp import Xmp, InvalidParameterError
+from pyxmp import Xmp
 
 
 class SetupTests(unittest.TestCase):
@@ -34,7 +34,7 @@ class SetupTests(unittest.TestCase):
         xmp.load_module('test.itz')
         try:
             xmp.start_player(Xmp.MAX_SRATE + 1)
-        except InvalidParameterError:
+        except ValueError:
             z = True
         self.assertEqual(z, True)
 
@@ -153,7 +153,7 @@ class ModuleTests(unittest.TestCase):
     def test_get_instrument_invalid(self):
         try:
             inst = self.mod.get_instrument(20)
-        except InvalidParameterError:
+        except LookupError:
             z = True
         self.assertEqual(z, True)
 
@@ -166,7 +166,7 @@ class ModuleTests(unittest.TestCase):
         try:
             inst = self.mod.get_instrument(2)
             sub = inst.get_subinstrument(2)
-        except InvalidParameterError:
+        except LookupError:
             z = True
         self.assertEqual(z, True)
 
@@ -182,7 +182,7 @@ class ModuleTests(unittest.TestCase):
     def test_get_sample_invalid(self):
         try:
             sample = self.mod.get_sample(30)
-        except InvalidParameterError:
+        except LookupError:
             z = True
         self.assertEqual(z, True)
 
