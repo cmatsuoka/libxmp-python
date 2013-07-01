@@ -36,7 +36,7 @@ class SetupTests(unittest.TestCase):
             xmp.start_player(Xmp.MAX_SRATE + 1)
         except ValueError:
             z = True
-        self.assertEqual(z, True)
+        self.assertTrue(z)
 
 
 class LoadTests(unittest.TestCase):
@@ -126,10 +126,10 @@ class PlayerTests(unittest.TestCase):
 
     def test_stop_module(self):
         ret = self.xmp.play_frame()
-        self.assertEqual(ret, True)
+        self.assertTrue(ret)
         self.xmp.stop_module()
         ret = self.xmp.play_frame()
-        self.assertEqual(ret, False)
+        self.assertFalse(ret)
  
 class ModuleTests(unittest.TestCase):
     def setUp(self):
@@ -155,7 +155,7 @@ class ModuleTests(unittest.TestCase):
             inst = self.mod.get_instrument(20)
         except LookupError:
             z = True
-        self.assertEqual(z, True)
+        self.assertTrue(z)
 
     def test_get_subinstrument(self):
         inst = self.mod.get_instrument(2)
@@ -168,12 +168,20 @@ class ModuleTests(unittest.TestCase):
             sub = inst.get_subinstrument(2)
         except LookupError:
             z = True
-        self.assertEqual(z, True)
+        self.assertTrue(z)
 
     def test_map_subinstrument(self):
         inst = self.mod.get_instrument(2)
         num = inst.map_subinstrument(60)
         self.assertEqual(num, 0)
+
+    def test_map_subinstrument_invalid(self):
+        inst = self.mod.get_instrument(2)
+        try:
+            num = inst.map_subinstrument(Xmp.MAX_KEYS)
+        except LookupError:
+            z = True
+        self.assertTrue(z)
 
     def test_get_sample(self):
         sample = self.mod.get_sample(3)
@@ -184,7 +192,20 @@ class ModuleTests(unittest.TestCase):
             sample = self.mod.get_sample(30)
         except LookupError:
             z = True
-        self.assertEqual(z, True)
+        self.assertTrue(z)
+
+    def test_get_order(self):
+        pos = self.mod.get_order(2)
+        self.assertEqual(pos, 2)
+        pos = self.mod.get_order(3)
+        self.assertEqual(pos, 1)
+
+    def test_get_order_invalid(self):
+        try:
+            pos = self.mod.get_order(10)
+        except LookupError:
+            z = True
+        self.assertTrue(z)
 
 if __name__ == '__main__':
 
