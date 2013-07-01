@@ -1081,325 +1081,133 @@ if hasattr(_libs['xmp'], 'xmp_set_instrument_path'):
     xmp_set_instrument_path.argtypes = [xmp_context, String]
     xmp_set_instrument_path.restype = c_int
 
-try:
-    XMP_NAME_SIZE = 64
-except:
-    pass
+XMP_NAME_SIZE = 64
 
-try:
-    XMP_KEY_OFF = 129
-except:
-    pass
+XMP_KEY_OFF = 129
 
-try:
-    XMP_KEY_CUT = 130
-except:
-    pass
+XMP_KEY_CUT = 130
 
-try:
-    XMP_KEY_FADE = 131
-except:
-    pass
+XMP_KEY_FADE = 131
 
-try:
-    XMP_FORMAT_8BIT = (1 << 0)
-except:
-    pass
+XMP_FORMAT_8BIT = (1 << 0)
 
-try:
-    XMP_FORMAT_UNSIGNED = (1 << 1)
-except:
-    pass
+XMP_FORMAT_UNSIGNED = (1 << 1)
 
-try:
-    XMP_FORMAT_MONO = (1 << 2)
-except:
-    pass
+XMP_FORMAT_MONO = (1 << 2)
 
-try:
-    XMP_PLAYER_AMP = 0
-except:
-    pass
+XMP_PLAYER_AMP = 0
 
-try:
-    XMP_PLAYER_MIX = 1
-except:
-    pass
+XMP_PLAYER_MIX = 1
 
-try:
-    XMP_PLAYER_INTERP = 2
-except:
-    pass
+XMP_PLAYER_INTERP = 2
 
-try:
-    XMP_PLAYER_DSP = 3
-except:
-    pass
+XMP_PLAYER_DSP = 3
 
-try:
-    XMP_PLAYER_FLAGS = 4
-except:
-    pass
+XMP_PLAYER_FLAGS = 4
 
-try:
-    XMP_PLAYER_CFLAGS = 5
-except:
-    pass
+XMP_PLAYER_CFLAGS = 5
 
-try:
-    XMP_PLAYER_SMPCTL = 6
-except:
-    pass
+XMP_PLAYER_SMPCTL = 6
 
-try:
-    XMP_INTERP_NEAREST = 0
-except:
-    pass
+XMP_INTERP_NEAREST = 0
 
-try:
-    XMP_INTERP_LINEAR = 1
-except:
-    pass
+XMP_INTERP_LINEAR = 1
 
-try:
-    XMP_INTERP_SPLINE = 2
-except:
-    pass
+XMP_INTERP_SPLINE = 2
 
-try:
-    XMP_DSP_LOWPASS = (1 << 0)
-except:
-    pass
+XMP_DSP_LOWPASS = (1 << 0)
 
-try:
-    XMP_DSP_ALL = XMP_DSP_LOWPASS
-except:
-    pass
+XMP_DSP_ALL = XMP_DSP_LOWPASS
 
-try:
-    XMP_FLAGS_VBLANK = (1 << 0)
-except:
-    pass
+XMP_FLAGS_VBLANK = (1 << 0)
 
-try:
-    XMP_FLAGS_FX9BUG = (1 << 1)
-except:
-    pass
+XMP_FLAGS_FX9BUG = (1 << 1)
 
-try:
-    XMP_FLAGS_FIXLOOP = (1 << 2)
-except:
-    pass
+XMP_FLAGS_FIXLOOP = (1 << 2)
 
-try:
-    XMP_SMPCTL_SKIP = (1 << 0)
-except:
-    pass
+XMP_SMPCTL_SKIP = (1 << 0)
 
-try:
-    XMP_MAX_KEYS = 121
-except:
-    pass
+XMP_MAX_KEYS = 121
 
-try:
-    XMP_MAX_ENV_POINTS = 32
-except:
-    pass
+XMP_MAX_ENV_POINTS = 32
 
-try:
-    XMP_MAX_MOD_LENGTH = 256
-except:
-    pass
+XMP_MAX_MOD_LENGTH = 256
 
-try:
-    XMP_MAX_CHANNELS = 64
-except:
-    pass
+XMP_MAX_CHANNELS = 64
 
-try:
-    XMP_MAX_SRATE = 49170
-except:
-    pass
+XMP_MAX_SRATE = 49170
 
-try:
-    XMP_MIN_SRATE = 4000
-except:
-    pass
+XMP_MIN_SRATE = 4000
 
-try:
-    XMP_MIN_BPM = 20
-except:
-    pass
+XMP_MIN_BPM = 20
 
-try:
-    XMP_MAX_FRAMESIZE = (((5 * XMP_MAX_SRATE) * 2) / XMP_MIN_BPM)
-except:
-    pass
+XMP_MAX_FRAMESIZE = (((5 * XMP_MAX_SRATE) * 2) / XMP_MIN_BPM)
 
-try:
-    XMP_END = 1
-except:
-    pass
+XMP_END = 1
 
-try:
-    XMP_ERROR_INTERNAL = 2
-except:
-    pass
+XMP_ERROR_INTERNAL = 2
 
-try:
-    XMP_ERROR_FORMAT = 3
-except:
-    pass
+XMP_ERROR_FORMAT = 3
 
-try:
-    XMP_ERROR_LOAD = 4
-except:
-    pass
+XMP_ERROR_LOAD = 4
 
-try:
-    XMP_ERROR_DEPACK = 5
-except:
-    pass
+XMP_ERROR_DEPACK = 5
 
-try:
-    XMP_ERROR_SYSTEM = 6
-except:
-    pass
+XMP_ERROR_SYSTEM = 6
 
-try:
-    XMP_ERROR_INVALID = 7
-except:
-    pass
+XMP_ERROR_INVALID = 7
 
-try:
-    XMP_CHANNEL_SYNTH = (1 << 0)
-except:
-    pass
+XMP_CHANNEL_SYNTH = (1 << 0)
 
-try:
-    XMP_CHANNEL_MUTE = (1 << 1)
-except:
-    pass
+XMP_CHANNEL_MUTE = (1 << 1)
 
-try:
-    XMP_ENVELOPE_ON = (1 << 0)
-except:
-    pass
+XMP_ENVELOPE_ON = (1 << 0)
 
-try:
-    XMP_ENVELOPE_SUS = (1 << 1)
-except:
-    pass
+XMP_ENVELOPE_SUS = (1 << 1)
 
-try:
-    XMP_ENVELOPE_LOOP = (1 << 2)
-except:
-    pass
+XMP_ENVELOPE_LOOP = (1 << 2)
 
-try:
-    XMP_ENVELOPE_FLT = (1 << 3)
-except:
-    pass
+XMP_ENVELOPE_FLT = (1 << 3)
 
-try:
-    XMP_ENVELOPE_SLOOP = (1 << 4)
-except:
-    pass
+XMP_ENVELOPE_SLOOP = (1 << 4)
 
-try:
-    XMP_ENVELOPE_CARRY = (1 << 5)
-except:
-    pass
+XMP_ENVELOPE_CARRY = (1 << 5)
 
-try:
-    XMP_INST_NNA_CUT = 0
-except:
-    pass
+XMP_INST_NNA_CUT = 0
 
-try:
-    XMP_INST_NNA_CONT = 1
-except:
-    pass
+XMP_INST_NNA_CONT = 1
 
-try:
-    XMP_INST_NNA_OFF = 2
-except:
-    pass
+XMP_INST_NNA_OFF = 2
 
-try:
-    XMP_INST_NNA_FADE = 3
-except:
-    pass
+XMP_INST_NNA_FADE = 3
 
-try:
-    XMP_INST_DCT_OFF = 0
-except:
-    pass
+XMP_INST_DCT_OFF = 0
 
-try:
-    XMP_INST_DCT_NOTE = 1
-except:
-    pass
+XMP_INST_DCT_NOTE = 1
 
-try:
-    XMP_INST_DCT_SMP = 2
-except:
-    pass
+XMP_INST_DCT_SMP = 2
 
-try:
-    XMP_INST_DCT_INST = 3
-except:
-    pass
+XMP_INST_DCT_INST = 3
 
-try:
-    XMP_INST_DCA_CUT = XMP_INST_NNA_CUT
-except:
-    pass
+XMP_INST_DCA_CUT = XMP_INST_NNA_CUT
 
-try:
-    XMP_INST_DCA_OFF = XMP_INST_NNA_OFF
-except:
-    pass
+XMP_INST_DCA_OFF = XMP_INST_NNA_OFF
 
-try:
-    XMP_INST_DCA_FADE = XMP_INST_NNA_FADE
-except:
-    pass
+XMP_INST_DCA_FADE = XMP_INST_NNA_FADE
 
-try:
-    XMP_SAMPLE_16BIT = (1 << 0)
-except:
-    pass
+XMP_SAMPLE_16BIT = (1 << 0)
 
-try:
-    XMP_SAMPLE_LOOP = (1 << 1)
-except:
-    pass
+XMP_SAMPLE_LOOP = (1 << 1)
 
-try:
-    XMP_SAMPLE_LOOP_BIDIR = (1 << 2)
-except:
-    pass
+XMP_SAMPLE_LOOP_BIDIR = (1 << 2)
 
-try:
-    XMP_SAMPLE_LOOP_REVERSE = (1 << 3)
-except:
-    pass
+XMP_SAMPLE_LOOP_REVERSE = (1 << 3)
 
-try:
-    XMP_SAMPLE_LOOP_FULL = (1 << 4)
-except:
-    pass
+XMP_SAMPLE_LOOP_FULL = (1 << 4)
 
-try:
-    XMP_SAMPLE_SYNTH = (1 << 15)
-except:
-    pass
+XMP_SAMPLE_SYNTH = (1 << 15)
 
-try:
-    XMP_PERIOD_BASE = 6847
-except:
-    pass
+XMP_PERIOD_BASE = 6847
 
 xmp_channel = struct_xmp_channel
 

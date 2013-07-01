@@ -316,10 +316,10 @@ class WrapperPrinter:
         # We want to contain the failures as much as possible.
         # Hence the try statement.
         self.srcinfo(macro.src)
-        print >>self.file, "try:"
-        print >>self.file, "    %s = %s" % (macro.name,macro.expr.py_string(True))
-        print >>self.file, "except:"
-        print >>self.file, "    pass"
+        #print >>self.file, "try:"
+        print >>self.file, "%s = %s" % (macro.name,macro.expr.py_string(True))
+        #print >>self.file, "except:"
+        #print >>self.file, "    pass"
 
     def print_func_macro(self, macro):
         self.srcinfo(macro.src)
