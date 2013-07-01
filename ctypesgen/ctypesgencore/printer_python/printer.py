@@ -78,7 +78,7 @@ class WrapperPrinter:
                 if self.options.strip_build_path and \
                   filename.startswith(self.options.strip_build_path):
                     filename = filename[len(self.options.strip_build_path):]
-                print >>self.file, "# %s: %s" % (filename, lineno)
+                #print >>self.file, "# %s: %s" % (filename, lineno)
 
     def template_subs(self):
         template_subs={
