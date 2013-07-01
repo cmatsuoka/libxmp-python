@@ -945,7 +945,6 @@ struct_xmp_frame_info._fields_ = [
 ]
 
 xmp_context = c_long
-
 try:
     xmp_version = (String).in_dll(_libs['xmp'], 'xmp_version')
 except:
@@ -1210,33 +1209,19 @@ XMP_SAMPLE_SYNTH = (1 << 15)
 XMP_PERIOD_BASE = 6847
 
 xmp_channel = struct_xmp_channel
-
 xmp_pattern = struct_xmp_pattern
-
 xmp_event = struct_xmp_event
-
 xmp_track = struct_xmp_track
-
 xmp_envelope = struct_xmp_envelope
-
 xmp_subinstrument = struct_xmp_subinstrument
-
 xmp_instrument = struct_xmp_instrument
-
 xmp_sample = struct_xmp_sample
-
 xmp_sequence = struct_xmp_sequence
-
 xmp_module = struct_xmp_module
-
 xmp_test_info = struct_xmp_test_info
-
 xmp_module_info = struct_xmp_module_info
-
 xmp_channel_info = struct_xmp_channel_info
-
 xmp_frame_info = struct_xmp_frame_info
-
 # Begin inserted files
 
 # Begin "interface.py"
