@@ -1406,6 +1406,10 @@ class Module(object):
         trk = self.get_pattern(pat).index[chn]
         return self.get_track(trk).event[row]
 
+    def get_channel(self, num):
+        _check_range('track', num, 0, self.chn - 1)
+        return self.xxc[num]
+
 class Xmp(object):
     """A multi format module player
 
