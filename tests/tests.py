@@ -157,6 +157,11 @@ class ModuleTests(unittest.TestCase):
             z = True
         self.assertTrue(z)
 
+    def test_get_envelope(self):
+        inst = self.mod.get_instrument(2)
+        env = inst.get_envelope(Xmp.VOL_ENVELOPE)
+        self.assertEqual(env.npt, 4)
+
     def test_get_subinstrument(self):
         inst = self.mod.get_instrument(2)
         sub = inst.get_subinstrument(0)

@@ -1080,6 +1080,46 @@ if hasattr(_libs['xmp'], 'xmp_set_instrument_path'):
     xmp_set_instrument_path.argtypes = [xmp_context, String]
     xmp_set_instrument_path.restype = c_int
 
+if hasattr(_libs['xmp'], 'xmp_load_module_from_memory'):
+    xmp_load_module_from_memory = _libs['xmp'].xmp_load_module_from_memory
+    xmp_load_module_from_memory.argtypes = [xmp_context, POINTER(None), c_long]
+    xmp_load_module_from_memory.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_sfx_init'):
+    xmp_sfx_init = _libs['xmp'].xmp_sfx_init
+    xmp_sfx_init.argtypes = [xmp_context, c_int, c_int]
+    xmp_sfx_init.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_sfx_deinit'):
+    xmp_sfx_deinit = _libs['xmp'].xmp_sfx_deinit
+    xmp_sfx_deinit.argtypes = [xmp_context]
+    xmp_sfx_deinit.restype = None
+
+if hasattr(_libs['xmp'], 'xmp_sfx_play_instrument'):
+    xmp_sfx_play_instrument = _libs['xmp'].xmp_sfx_play_instrument
+    xmp_sfx_play_instrument.argtypes = [xmp_context, c_int, c_int, c_int, c_int]
+    xmp_sfx_play_instrument.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_sfx_play_sample'):
+    xmp_sfx_play_sample = _libs['xmp'].xmp_sfx_play_sample
+    xmp_sfx_play_sample.argtypes = [xmp_context, c_int, c_int, c_int, c_int]
+    xmp_sfx_play_sample.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_sfx_channel_pan'):
+    xmp_sfx_channel_pan = _libs['xmp'].xmp_sfx_channel_pan
+    xmp_sfx_channel_pan.argtypes = [xmp_context, c_int, c_int]
+    xmp_sfx_channel_pan.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_sfx_load_sample'):
+    xmp_sfx_load_sample = _libs['xmp'].xmp_sfx_load_sample
+    xmp_sfx_load_sample.argtypes = [xmp_context, c_int, String]
+    xmp_sfx_load_sample.restype = c_int
+
+if hasattr(_libs['xmp'], 'xmp_sfx_release_sample'):
+    xmp_sfx_release_sample = _libs['xmp'].xmp_sfx_release_sample
+    xmp_sfx_release_sample.argtypes = [xmp_context, c_int]
+    xmp_sfx_release_sample.restype = c_int
+
 XMP_NAME_SIZE = 64
 
 XMP_KEY_OFF = 129
@@ -1108,6 +1148,12 @@ XMP_PLAYER_CFLAGS = 5
 
 XMP_PLAYER_SMPCTL = 6
 
+XMP_PLAYER_VOLUME = 7
+
+XMP_PLAYER_STATE = 8
+
+XMP_PLAYER_SFX_VOLUME = 9
+
 XMP_INTERP_NEAREST = 0
 
 XMP_INTERP_LINEAR = 1
@@ -1117,6 +1163,12 @@ XMP_INTERP_SPLINE = 2
 XMP_DSP_LOWPASS = (1 << 0)
 
 XMP_DSP_ALL = XMP_DSP_LOWPASS
+
+XMP_STATE_UNLOADED = 0
+
+XMP_STATE_LOADED = 1
+
+XMP_STATE_PLAYING = 2
 
 XMP_FLAGS_VBLANK = (1 << 0)
 
@@ -1155,6 +1207,8 @@ XMP_ERROR_DEPACK = 5
 XMP_ERROR_SYSTEM = 6
 
 XMP_ERROR_INVALID = 7
+
+XMP_ERROR_STATE = 8
 
 XMP_CHANNEL_SYNTH = (1 << 0)
 
@@ -1267,6 +1321,22 @@ class SubInstrument(object):
     def __getattr__(self, n):
         return getattr(self._sub, n)
 
+class Envelope(object):
+    """An envelope 
+
+    Each instrument has amplitude, frequency and pan envelopes.
+
+    """
+    def __init__(self, env):
+        self._env = env 
+
+    def __getattr__(self, n):
+        return getattr(self._env, n)
+
+    def get_point(self, num):
+        _check_range('envelope point', num, 0, self._env.npt - 1)
+        return (self._env.data[num * 2], self._env.data[num * 2 + 1]) 
+
 class Instrument(object):
     """An instrument
 
@@ -1279,6 +1349,15 @@ class Instrument(object):
 
     def __getattr__(self, n):
         return getattr(self._xxi, n)
+
+    def get_envelope(self, num):
+        _check_range('envelope', num, 0, 2)
+        if num == Xmp.VOL_ENVELOPE:
+            return Envelope(self._xxi.aei)
+        elif num == Xmp.FREQ_ENVELOPE:
+            return Envelope(self._xxi.fei)
+        elif num == Xmp.PAN_ENVELOPE:
+            return Envelope(self._xxi.pei)
 
     def get_subinstrument(self, num):
         _check_range('sub-instrument', num, 0, self._xxi.nsm - 1)
@@ -1416,6 +1495,10 @@ class Xmp(object):
     SAMPLE_SYNTH        = XMP_SAMPLE_SYNTH
 
     PERIOD_BASE         = XMP_PERIOD_BASE
+
+    VOL_ENVELOPE        = 0
+    FREQ_ENVELOPE       = 1
+    PAN_ENVELOPE        = 2
 
     # Error messages
     

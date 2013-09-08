@@ -39,6 +39,22 @@ class SubInstrument(object):
     def __getattr__(self, n):
         return getattr(self._sub, n)
 
+class Envelope(object):
+    """An envelope 
+
+    Each instrument has amplitude, frequency and pan envelopes.
+
+    """
+    def __init__(self, env):
+        self._env = env 
+
+    def __getattr__(self, n):
+        return getattr(self._env, n)
+
+    def get_point(self, num):
+        _check_range('envelope point', num, 0, self._env.npt - 1)
+        return (self._env.data[num * 2], self._env.data[num * 2 + 1]) 
+
 class Instrument(object):
     """An instrument
 
@@ -51,6 +67,15 @@ class Instrument(object):
 
     def __getattr__(self, n):
         return getattr(self._xxi, n)
+
+    def get_envelope(self, num):
+        _check_range('envelope', num, 0, 2)
+        if num == Xmp.VOL_ENVELOPE:
+            return Envelope(self._xxi.aei)
+        elif num == Xmp.FREQ_ENVELOPE:
+            return Envelope(self._xxi.fei)
+        elif num == Xmp.PAN_ENVELOPE:
+            return Envelope(self._xxi.pei)
 
     def get_subinstrument(self, num):
         _check_range('sub-instrument', num, 0, self._xxi.nsm - 1)
@@ -188,6 +213,10 @@ class Xmp(object):
     SAMPLE_SYNTH        = XMP_SAMPLE_SYNTH
 
     PERIOD_BASE         = XMP_PERIOD_BASE
+
+    VOL_ENVELOPE        = 0
+    FREQ_ENVELOPE       = 1
+    PAN_ENVELOPE        = 2
 
     # Error messages
     
