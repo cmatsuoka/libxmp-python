@@ -1,7 +1,7 @@
 '''Wrapper for xmp.h
 
 Generated with:
-ctypesgen/ctypesgen.py -x XMP_VER.* -lxmp ../libxmp/include/xmp.h -o pyxmp.py --insert-file=interface.py
+ctypesgen/ctypesgen.py -x XMP_VER.* -lxmp /usr/local/include/xmp.h -o pyxmp.py --insert-file=interface.py
 
 Do not modify this file.
 '''
@@ -691,7 +691,7 @@ struct_anon_1.__slots__ = [
 ]
 struct_anon_1._fields_ = [
     ('ins', c_ubyte),
-    ('xpo', c_char),
+    ('xpo', c_byte),
 ]
 
 class struct_xmp_subinstrument(Structure):

@@ -18,7 +18,7 @@ args = [
     'sed',
     # BSD sed *requires* an extension argument to -i
     '-i.bak',
-    's/^xmp_context = String/xmp_context = c_long/;s/ \* 1)/ * 256)/',
+    's/^xmp_context = String/xmp_context = c_long/;s/ \* 1)/ * 256)/;s/\'xpo\', c_char/\'xpo\', c_byte/',
     'pyxmp.py'
 ]
 
