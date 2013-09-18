@@ -1,7 +1,7 @@
 '''Wrapper for xmp.h
 
 Generated with:
-ctypesgen/ctypesgen.py -x XMP_VER.* -lxmp /usr/local/include/xmp.h -o pyxmp.py --insert-file=interface.py
+ctypesgen/ctypesgen.py -x XMP_VER.* -lxmp ../libxmp/include/xmp.h -o pyxmp.py --insert-file=interface.py
 
 Do not modify this file.
 '''
@@ -1283,6 +1283,7 @@ xmp_frame_info = struct_xmp_frame_info
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 def _check_range(parm, val, lower, upper):
+    upper = upper - 1
     if val < lower or val > upper:
         raise LookupError(
             'Invalid {0} #{1}, valid {0} range is {2} to {3}'
@@ -1334,7 +1335,7 @@ class Envelope(object):
         return getattr(self._env, n)
 
     def get_point(self, num):
-        _check_range('envelope point', num, 0, self._env.npt - 1)
+        _check_range('envelope point', num, 0, self._env.npt)
         return (self._env.data[num * 2], self._env.data[num * 2 + 1]) 
 
 class Instrument(object):
@@ -1351,7 +1352,7 @@ class Instrument(object):
         return getattr(self._xxi, n)
 
     def get_envelope(self, num):
-        _check_range('envelope', num, 0, 2)
+        _check_range('envelope', num, 0, 3)
         if num == Xmp.VOL_ENVELOPE:
             return Envelope(self._xxi.aei)
         elif num == Xmp.FREQ_ENVELOPE:
@@ -1360,55 +1361,220 @@ class Instrument(object):
             return Envelope(self._xxi.pei)
 
     def get_subinstrument(self, num):
-        _check_range('sub-instrument', num, 0, self._xxi.nsm - 1)
+        _check_range('sub-instrument', num, 0, self._xxi.nsm)
         return SubInstrument(self._xxi.sub[num])
 
     def map_subinstrument(self, key):
-        _check_range('key', key, 0, XMP_MAX_KEYS - 1)
+        _check_range('key', key, 0, XMP_MAX_KEYS)
         return self._xxi.map[key].ins
 
+class Player(object):
+
+    def __init__(self, freq = 44100, mode = 0):
+        self._freq = freq
+        self._mode = mode
+        self._ctx = xmp_create_context()
+
+    def __del__(self):
+        xmp_free_context(self._ctx)
+
+    def get_context(self):
+        return self._ctx
+
+    def start(self, freq = -1, mode = -1):
+        """Start playing the currently loaded module."""
+
+        if freq < 0:
+            freq = self._freq
+
+        if mode < 0:
+            mode = self._mode
+
+        code = xmp_start_player(self._ctx, freq, mode)
+        if code < 0:
+            if code == -XMP_ERROR_INTERNAL:
+                raise RuntimeError(Xmp._error[-code])
+            elif code == -XMP_ERROR_INVALID:
+                raise ValueError(
+                    'Invalid sampling rate {0}Hz'.format(freq))
+            elif code == -XMP_ERROR_SYSTEM:
+                errno = get_errno()
+                raise OSError(-code,
+                    '{0}: {1}'.format(Xmp._error[-code], os.strerror(errno)))
+
+    def end(self):
+        """End module replay and release player memory."""
+        xmp_end_player(self._ctx)
+
+    def set_parameter(self, param, value):
+        code = xmp_set_player(self._ctx, param, value)
+        if code < 0:
+            if code == XMP_ERROR_INVALID:
+                raise ValueError('Invalid value {0}'.format(value))
+
+    def get_parameter(self, param):
+        return xmp_get_player(self._ctx, param)
+
+    def inject_event(self, chn, event):
+        xmp_inject_event(self._ctx, chn, event)
+
+    @staticmethod
+    def get_format_list():
+        format_list = xmp_get_format_list()
+        i = 0
+        l = []
+        while format_list[i]:
+            l.append(ctypes.string_at(format_list[i]))
+            i = i + 1
+        return l
+
+    def next_position(self):
+        """Skip replay to the start of the next position."""
+        return xmp_next_position(self._ctx)
+
+    def prev_position(self):
+        """Skip replay to the start of the previous position."""
+        return xmp_prev_position(self._ctx)
+
+    def set_position(self, num):
+        """Skip replay to the start of the given position."""
+        return xmp_set_position(self._ctx, num)
+
+    def stop_module(self):
+        """Stop the currently playing module."""
+        xmp_stop_module(self._ctx)
+
+    def restart_module(self):
+        """Restart the currently playing module."""
+        xmp_restart_module(self._ctx)
+
+    def seek_time(self, time):
+        """Skip replay to the specified time."""
+        return xmp_seek_time(self._ctx, time)
+
+    def channel_mute(self, chn, val):
+        return xmp_channel_mute(self._ctx, chn, val)
+
+    def channel_vol(self, chn, val):
+        return xmp_channel_vol(self._ctx, chn, val)
+
+    def set_instrument_path(self, path):
+        return xmp_set_instrument_path(self._ctx, path)
+    
+    
 class Module(object):
     """
 
     Our module.
 
     """
-    def __init__(self, mod):
-        self._mod = mod
+    def __init__(self, path, player = None):
+
+        if player == None:
+            player = Player()
+
+        self._player = player
+        self._ctx = player.get_context()
+
+        code = xmp_load_module(self._ctx, path)
+        if code < 0:
+            if code == -XMP_ERROR_SYSTEM:
+                errno = get_errno()
+                raise IOError(-code, '{0}: {1}'
+                    .format(Xmp._error[-code], os.strerror(errno)))
+            else:
+                raise IOError(-code, Xmp._error[-code])
+    
+        self._module_info = struct_xmp_module_info()
+        xmp_get_module_info(self._ctx, pointer(self._module_info))
+        self._mod = self._module_info.mod[0]
 
     def __getattr__(self, n):
         return getattr(self._mod, n)
 
+    @staticmethod
+    def test(path, info = struct_xmp_test_info()):
+        """Test if a file is a valid module."""
+        code = xmp_test_module(path, pointer(info))
+        if code == 0:
+           return info
+        else:
+           return None
+
+    def scan(self):
+        """Scan the loaded module for sequences and timing."""
+        xmp_scan_module(self._ctx)
+
+    def release(self):
+        """Release all memory used by the loaded module."""
+        xmp_release_module(self._ctx)
+
+    def play_frame(self):
+        """Play one frame of the module."""
+        return xmp_play_frame(self._ctx) == 0
+
+    def play_buffer(self, size, loop = 1, buf = None):
+        if buf == None:
+            buf = Xmp.create_buffer(size)
+        ret = xmp_play_buffer(self._ctx, buf, size, loop)
+        if ret == 0:
+	    return buf
+	else:
+	    return None
+
+    def get_info(self, info = None):
+        if info == None:
+            return self._module_info
+        else:
+            info.__dict__.update(self._module_info.__dict__)
+            return info
+
+    def get_frame_info(self, info = struct_xmp_frame_info()):
+        """Retrieve current frame information."""
+        xmp_get_frame_info(self._ctx, pointer(info))
+        return info
+
     def get_instrument(self, num):
-        _check_range('instrument', num, 0, self.ins - 1)
+        _check_range('instrument', num, 0, self.ins)
         return Instrument(self._mod.xxi[num])
 
     def get_sample(self, num):
-        _check_range('sample', num, 0, self.smp - 1)
+        _check_range('sample', num, 0, self.smp)
         return Sample(self._mod.xxs[num])
 
     def get_order(self, num):
-        _check_range('position', num, 0, self.len - 1)
+        _check_range('position', num, 0, self.len)
         return self.xxo[num]
 
     def get_pattern(self, num):
-        _check_range('pattern', num, 0, self.pat - 1)
+        _check_range('pattern', num, 0, self.pat)
         return self.xxp[num][0]
 
     def get_track(self, num):
-        _check_range('track', num, 0, self.trk - 1)
+        _check_range('track', num, 0, self.trk)
         return self.xxt[num][0]
 
     def get_event(self, pat, row, chn):
-        _check_range('pattern', pat, 0, self.pat - 1)
-        _check_range('channel', chn, 0, self.chn - 1)
-        _check_range('row', row, 0, self.get_pattern(pat).rows - 1)
+        _check_range('pattern', pat, 0, self.pat)
+        _check_range('channel', chn, 0, self.chn)
+        _check_range('row', row, 0, self.get_pattern(pat).rows)
         trk = self.get_pattern(pat).index[chn]
         return self.get_track(trk).event[row]
 
     def get_channel(self, num):
-        _check_range('track', num, 0, self.chn - 1)
+        _check_range('track', num, 0, self.chn)
         return self.xxc[num]
+
+class TestInfo(struct_xmp_test_info):
+    pass
+
+class FrameInfo(struct_xmp_frame_info):
+    def get_buffer(self):
+        buf = ctypes.cast(self.buffer, POINTER(c_int8))
+        return ctypes.string_at(buf, self.buffer_size);
+
+class ModuleInfo(struct_xmp_module_info):
+    pass
 
 class Xmp(object):
     """A multi format module player
@@ -1517,170 +1683,11 @@ class Xmp(object):
         "Invalid parameter"
     ]
     
-    def get_module(self):
-        return self._module
-
-    # Regular C API calls for libxmp 4.1
-
-    def __init__(self):
-        self._ctx = xmp_create_context()
-
-    def __del__(self):
-        xmp_free_context(self._ctx)
-
-    def load_module(self, path):
-        """Load a module file."""
-        code = xmp_load_module(self._ctx, path)
-        if code < 0:
-            if code == -XMP_ERROR_SYSTEM:
-                errno = get_errno()
-                raise IOError(-code, '{0}: {1}'
-                    .format(Xmp._error[-code], os.strerror(errno)))
-            else:
-                raise IOError(-code, Xmp._error[-code])
-    
-        self._module_info = struct_xmp_module_info()
-        xmp_get_module_info(self._ctx, pointer(self._module_info))
-        self._module = Module(self._module_info.mod[0])
-        return self._module
-
-    @staticmethod
-    def test_module(path, info = struct_xmp_test_info()):
-        """Test if a file is a valid module."""
-        code = xmp_test_module(path, pointer(info))
-        if code == 0:
-           return info
-        else:
-           return None
-
-    def scan_module(self):
-        """Scan the loaded module for sequences and timing."""
-        xmp_scan_module(self._ctx)
-
-    def release_module(self):
-        """Release all memory used by the loaded module."""
-        xmp_release_module(self._ctx)
-
-    def start_player(self, freq, mode = 0):
-        """Start playing the currently loaded module."""
-        code = xmp_start_player(self._ctx, freq, mode)
-        if code < 0:
-            if code == -XMP_ERROR_INTERNAL:
-                raise RuntimeError(Xmp._error[-code])
-            elif code == -XMP_ERROR_INVALID:
-                raise ValueError(
-                    'Invalid sampling rate {0}Hz'.format(freq))
-            elif code == -XMP_ERROR_SYSTEM:
-                errno = get_errno()
-                raise OSError(-code,
-                    '{0}: {1}'.format(Xmp._error[-code], os.strerror(errno)))
-    
-    def play_frame(self):
-        """Play one frame of the module."""
-        return xmp_play_frame(self._ctx) == 0
-
-    def play_buffer(self, size, loop = 1, buf = None):
-        if buf == None:
-            buf = self.buffer(size)
-        ret = xmp_play_buffer(self._ctx, buf, size, loop)
-        if ret == 0:
-	    return buf
-	else:
-	    return None
-
-    def get_frame_info(self, info = struct_xmp_frame_info()):
-        """Retrieve current frame information."""
-        xmp_get_frame_info(self._ctx, pointer(info))
-        return info
-
-    def end_player(self):
-        """End module replay and release player memory."""
-        xmp_end_player(self._ctx)
-
-    def inject_event(self, chn, event):
-        xmp_inject_event(self._ctx, chn, event)
-
-    def get_module_info(self, info = None):
-        if info == None:
-            return self._module_info
-        else:
-            info.__dict__.update(self._module_info.__dict__)
-            return info
-
-    @staticmethod
-    def get_format_list():
-        format_list = xmp_get_format_list()
-        i = 0
-        l = []
-        while format_list[i]:
-            l.append(ctypes.string_at(format_list[i]))
-            i = i + 1
-        return l
-
-    def next_position(self):
-        """Skip replay to the start of the next position."""
-        return xmp_next_position(self._ctx)
-
-    def prev_position(self):
-        """Skip replay to the start of the previous position."""
-        return xmp_prev_position(self._ctx)
-
-    def set_position(self, num):
-        """Skip replay to the start of the given position."""
-        return xmp_set_position(self._ctx, num)
-
-    def stop_module(self):
-        """Stop the currently playing module."""
-        xmp_stop_module(self._ctx)
-
-    def restart_module(self):
-        """Restart the currently playing module."""
-        xmp_restart_module(self._ctx)
-
-    def seek_time(self, time):
-        """Skip replay to the specified time."""
-        return xmp_seek_time(self._ctx, time)
-
-    def channel_mute(self, chn, val):
-        return xmp_channel_mute(self._ctx, chn, val)
-
-    def channel_vol(self, chn, val):
-        return xmp_channel_vol(self._ctx, chn, val)
-
-    def set_player(self, param, value):
-        code = xmp_set_player(self._ctx, param, value)
-        if code < 0:
-            if code == XMP_ERROR_INVALID:
-                raise ValueError('Invalid value {0}'.format(value))
-
-    def get_player(self, param):
-        return xmp_get_player(self._ctx, param)
-
-    def set_instrument_path(self, path):
-        return xmp_set_instrument_path(self._ctx, path)
-    
     # Extra convenience calls
 
     @staticmethod
-    def buffer(size):
+    def create_buffer(size):
 	return ctypes.create_string_buffer(size)
-
-    @staticmethod
-    def test_info():
-        return struct_xmp_test_info()
-
-    @staticmethod
-    def module_info():
-        return struct_xmp_module_info()
-
-    @staticmethod
-    def frame_info():
-        return struct_xmp_frame_info()
-
-    @staticmethod
-    def get_buffer(info):
-        buf = ctypes.cast(info.buffer, POINTER(c_int8))
-        return ctypes.string_at(buf, info.buffer_size);
 
 
 # End "interface.py"

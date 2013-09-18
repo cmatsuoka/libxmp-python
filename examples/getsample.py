@@ -9,7 +9,7 @@ import os
 import wave
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pyxmp import Xmp
+from pyxmp import *
 
 
 def extract_sample(module, inst, num, filename):
@@ -46,10 +46,8 @@ if len(sys.argv) < 3:
     print 'Usage: {0} <module> <insnum>'.format(os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-xmp = Xmp()
-
 try:
-    module = xmp.load_module(sys.argv[1])
+    module = Module(sys.argv[1])
 except IOError, error:
     sys.stderr.write('{0}: {1}\n'.format(sys.argv[1], error.strerror))
     sys.exit(1)

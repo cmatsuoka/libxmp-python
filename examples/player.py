@@ -9,7 +9,7 @@ import os
 import pyaudio
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pyxmp import Xmp
+from pyxmp import *
 
 class Sound:
     """ Sound output manager
@@ -49,39 +49,39 @@ def play(filename):
     Our mod player.
     """
 
-    xmp = Xmp()
+    player = Player()
+
     try:
-        mymod = xmp.load_module(filename)
+        mod = Module(filename, player)
     except IOError, error:
         sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
         sys.exit(1)
     
     sound = Sound()
     
-    xmp.start_player(44100, 0)
-    minfo = xmp.get_module_info()
+    player.start(44100, 0)
     
-    show_info(mymod)
+    show_info(mod)
     
     # reuse this object
-    finfo = Xmp.frame_info()
+    finfo = FrameInfo()
     
-    while xmp.play_frame():
-        xmp.get_frame_info(finfo)
+    while mod.play_frame():
+        mod.get_frame_info(finfo)
         if finfo.loop_count > 0:
             break
     
         if finfo.frame == 0:
             sys.stdout.write(" %3d/%3d  %3d/%3d\r" %
-                (finfo.pos, mymod.len, finfo.row, finfo.num_rows))
+                (finfo.pos, mod.len, finfo.row, finfo.num_rows))
             sys.stdout.flush()
     
-        sound_buffer = xmp.get_buffer(finfo)
+        sound_buffer = finfo.get_buffer()
         sound.write(sound_buffer)
     
-    xmp.end_player()
+    player.end()
     sound.close()
-    xmp.release_module()
+    mod.release()
 
 
 if len(sys.argv) < 2:
