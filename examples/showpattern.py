@@ -22,7 +22,7 @@ def display_pattern(module, num):
         sys.stdout.write('{0:02X}|'.format(i))
 
         for j in range(module.chn):
-            event = pattern.get_event(i, j)
+            event = module.get_event(num, i, j)
             
             if event.note == 0:
                 sys.stdout.write('---')

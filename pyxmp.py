@@ -1,7 +1,7 @@
 '''Wrapper for xmp.h
 
 Generated with:
-ctypesgen/ctypesgen.py -x XMP_VER.* -lxmp ../libxmp/include/xmp.h -o pyxmp.py --insert-file=interface.py
+ctypesgen/ctypesgen.py -x XMP_VER.* -lxmp /usr/local/include/xmp.h -o pyxmp.py --insert-file=interface.py
 
 Do not modify this file.
 '''
@@ -1308,45 +1308,6 @@ class Sample(object):
         else:
             return ctypes.string_at(buf, self.len)
 
-class Track(object):
-    """A track 
-
-    A track contains events organized in rows.
-
-    """
-    def __init__(self, mod, trk):
-        self._mod = mod;
-        self._trk = trk;
-
-    def __getattr__(self, n):
-        return getattr(self._trk, n)
-
-    def get_event(self, row):
-        _check_range('row', row, 0, self.rows - 1)
-        return self.event[row];
-
-class Pattern(object):
-    """A pattern 
-
-    A pattern contains indexes for tracks.
-
-    """
-    def __init__(self, mod, pat):
-        self._mod = mod;
-        self._pat = pat;
-
-    def __getattr__(self, n):
-        return getattr(self._pat, n)
-
-    def get_track(self, num):
-        _check_range('channel', num, 0, self._mod.chn - 1)
-        return Track(self._mod, self._mod.xxt[self.index[num]][0])
-
-    def get_event(self, row, chn):
-        _check_range('channel', chn, 0, self._mod.chn - 1)
-        _check_range('row', row, 0, self.rows - 1)
-        return self.get_track(chn).get_event(row);
-
 class SubInstrument(object):
     """A sub-instrument
 
@@ -1432,15 +1393,18 @@ class Module(object):
 
     def get_pattern(self, num):
         _check_range('pattern', num, 0, self.pat - 1)
-        return Pattern(self, self.xxp[num][0])
+        return self.xxp[num][0]
 
     def get_track(self, num):
         _check_range('track', num, 0, self.trk - 1)
-        return Track(self, self.xxt[num][0])
+        return self.xxt[num][0]
 
     def get_event(self, pat, row, chn):
         _check_range('pattern', pat, 0, self.pat - 1)
-        return self.get_pattern(pat).get_event(row, chn)
+        _check_range('channel', chn, 0, self.chn - 1)
+        _check_range('row', row, 0, self.get_pattern(pat).rows - 1)
+        trk = self.get_pattern(pat).index[chn]
+        return self.get_track(trk).event[row]
 
     def get_channel(self, num):
         _check_range('track', num, 0, self.chn - 1)
