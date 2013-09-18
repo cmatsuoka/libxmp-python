@@ -8,7 +8,7 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pyxmp import Xmp
+from pyxmp import Module
 
 
 def display_pattern(module, num):
@@ -17,6 +17,10 @@ def display_pattern(module, num):
 
     pattern = module.get_pattern(num)
     print 'PATTERN {0:02x}'.format(num)
+
+    print module.name
+    print pattern
+    print pattern.rows
 
     for i in range(pattern.rows):
         sys.stdout.write('{0:02X}|'.format(i))
@@ -47,11 +51,8 @@ if len(sys.argv) < 3:
     print 'Usage: {0} <module> <patnum>'.format(os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-xmp = Xmp()
-
-module = xmp.load_module(sys.argv[1])
 try:
-    module = xmp.load_module(sys.argv[1])
+    module = Module(sys.argv[1])
 except IOError, error:
     sys.stderr.write('{0}: {1}\n'.format(sys.argv[1], error.strerror))
     sys.exit(1)

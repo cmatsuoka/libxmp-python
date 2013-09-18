@@ -8,18 +8,16 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pyxmp import Xmp
+from pyxmp import *
 
 if len(sys.argv) < 2:
     print 'Usage: {0} <module>'.format(os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-xmp = Xmp()
-
-info = Xmp.test_info()
+info = TestInfo()
 
 for name in sys.argv[1:]:
-    if Xmp.test_module(name, info):
+    if Module.test(name, info):
         print '{0:25.25} {1.type:25.25} {1.name}'.format(name, info)
 
 
