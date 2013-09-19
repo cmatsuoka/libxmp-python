@@ -1289,6 +1289,17 @@ def _check_range(parm, val, lower, upper):
             'Invalid {0} #{1}, valid {0} range is {2} to {3}'
             .format(parm, val ,lower, upper))
 
+class TestInfo(struct_xmp_test_info):
+    pass
+
+class FrameInfo(struct_xmp_frame_info):
+    def get_buffer(self):
+        buf = ctypes.cast(self.buffer, POINTER(c_int8))
+        return ctypes.string_at(buf, self.buffer_size);
+
+class ModuleInfo(struct_xmp_module_info):
+    pass
+
 class Sample(object):
     """A sound sample
 
@@ -1529,7 +1540,7 @@ class Module(object):
             info.__dict__.update(self._module_info.__dict__)
             return info
 
-    def get_frame_info(self, info = struct_xmp_frame_info()):
+    def get_frame_info(self, info = FrameInfo()):
         """Retrieve current frame information."""
         xmp_get_frame_info(self._ctx, pointer(info))
         return info
@@ -1564,17 +1575,6 @@ class Module(object):
     def get_channel(self, num):
         _check_range('track', num, 0, self.chn)
         return self.xxc[num]
-
-class TestInfo(struct_xmp_test_info):
-    pass
-
-class FrameInfo(struct_xmp_frame_info):
-    def get_buffer(self):
-        buf = ctypes.cast(self.buffer, POINTER(c_int8))
-        return ctypes.string_at(buf, self.buffer_size);
-
-class ModuleInfo(struct_xmp_module_info):
-    pass
 
 class Xmp(object):
     """A multi format module player

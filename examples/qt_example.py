@@ -15,7 +15,7 @@ from PyQt4.QtGui import QApplication, QWidget, QPainter
 from threading import Lock
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pyxmp import Xmp
+from pyxmp import *
 
 CHANNELS = 2
 WORD_SIZE = 2
@@ -27,7 +27,7 @@ def cb_player(in_data, frame_count, time_info, status):
     global data, end_flag
     size = frame_count * CHANNELS * WORD_SIZE
     lock.acquire()
-    data = xmp.play_buffer(size)
+    data = mod.play_buffer(size)
     if data == None:
         end_flag = True
     lock.release()
@@ -94,8 +94,12 @@ class Example(QWidget):
 
     def play(self, filename):
         """Load and play the module file."""
+
+        global mod
+        player = Player()
+
         try:
-            mod = xmp.load_module(filename)
+            mod = Module(filename, player)
         except IOError, error:
             sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
             sys.exit(1)
@@ -108,7 +112,7 @@ class Example(QWidget):
                         format = self._audio.get_format_from_width(WORD_SIZE),
                         channels = CHANNELS, rate = SAMPLE_RATE,
                         output = True, stream_callback = cb_player)
-        xmp.start_player(SAMPLE_RATE)
+        player.start(SAMPLE_RATE)
         self._stream.start_stream()
 
     def stop(self):
@@ -117,8 +121,8 @@ class Example(QWidget):
         self._stream.stop_stream()
         self._stream.close()
         self._audio.terminate()
-        xmp.end_player()
-        xmp.release_module()
+        player.end()
+        module.release()
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -128,7 +132,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     example = Example()
 
-    xmp = Xmp()
     lock = Lock()
     end_flag = False
     example.play(sys.argv[1])

@@ -29,6 +29,7 @@ def cb_callback(in_data, frame_count, time_info, status):
 def play(filename):
     """Load and play the module file."""
 
+    global mod
     player = Player()
 
     try:

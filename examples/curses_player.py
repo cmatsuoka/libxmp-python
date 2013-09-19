@@ -13,7 +13,7 @@ import atexit
 from threading import Lock
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pyxmp import Xmp
+from pyxmp import *
 
 CHANNELS = 2
 WORD_SIZE = 2
@@ -66,7 +66,7 @@ def cb_callback(in_data, frame_count, time_info, status):
     """Pyaudio callback function."""
     size = frame_count * CHANNELS * WORD_SIZE
     lock.acquire()
-    data = xmp.play_buffer(size)
+    data = mod.play_buffer(size)
     lock.release()
     return (data, pyaudio.paContinue)
 
@@ -109,8 +109,6 @@ def header_info(height, width, finfo, mod):
 def channel_info(height, width, minfo, finfo, vols):
     """Display instrument and volume bars in middle pane."""
     pane = Pane(4, 0, (height - 4) / 2, width, True)
-
-    mod = xmp.get_module()
 
     for i in range(mod.chn):
         if i >= pane.lines * 2:
@@ -189,13 +187,17 @@ def track_info(height, width, finfo, mod):
 
 def play(filename):
     """Load and play the module file."""
+
+    global mod
+    player = Player()
+
     try:
-        mod = xmp.load_module(filename)
+        mod = Module(filename, player)
     except IOError, error:
         sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
         sys.exit(1)
     
-    minfo = xmp.get_module_info()
+    minfo = mod.get_info()
     vols = [ 0 ] * mod.chn
 
     audio = pyaudio.PyAudio()
@@ -203,16 +205,16 @@ def play(filename):
                     channels = CHANNELS, rate = SAMPLE_RATE,
                     output = True, stream_callback = cb_callback)
     
-    xmp.start_player(SAMPLE_RATE)
+    player.start(SAMPLE_RATE)
     stream.start_stream()
-    finfo = Xmp.frame_info()
+    finfo = FrameInfo()
 
     (height, width) = stdscr.getmaxyx() 
 
     old_row = -1
     while stream.is_active():
         lock.acquire()
-        xmp.get_frame_info(finfo)
+        mod.get_frame_info(finfo)
         lock.release()
 
         if finfo.row != old_row:
@@ -227,8 +229,8 @@ def play(filename):
     stream.stop_stream()
     stream.close()
     audio.terminate()
-    xmp.end_player()
-    xmp.release_module()
+    player.end()
+    module.release()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -247,7 +249,6 @@ if __name__ == "__main__":
     stdscr.clear()
     curses.endwin()
 
-    xmp = Xmp()
     lock = Lock()
     play(sys.argv[1])
 
