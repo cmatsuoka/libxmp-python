@@ -243,6 +243,17 @@ class Module(object):
         """Release all memory used by the loaded module."""
         xmp_release_module(self._ctx)
 
+    def play(self, callback, loop = False, args = { }):
+        fi = FrameInfo();
+        self._player.start();
+        while self.play_frame():
+            self.get_frame_info(fi)
+            if loop and fi.loop_count > 0:
+                break
+            if callback(self, fi, args) != True:
+                break
+        self._player.end()
+
     def play_frame(self):
         """Play one frame of the module."""
         return xmp_play_frame(self._ctx) == 0

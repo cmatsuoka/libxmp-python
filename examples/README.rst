@@ -2,7 +2,8 @@
 Examples
 --------
 
-* player.py: A module player using pyaudio.
+* player.py: A module player using pyaudio. This player uses the play_frame()
+             method to play one frame per call.
 
   Usage: player.py <module file>::
 
@@ -16,6 +17,17 @@ Examples
       3 Drumkit                           
       4 Distorted Guitar                  
        1/ 42   44/ 64
+
+* player2.py: Same as above, but using the play() method to play the entire
+              module.
+
+  Usage: player2.py <module file>
+
+
+* callback.py: Same as above, but using the pyaudio callback and the
+               play_buffer() method to play one buffer per call.
+
+  Usage: callback.py <module file>
 
 
 * info.py: List and identify module files.
