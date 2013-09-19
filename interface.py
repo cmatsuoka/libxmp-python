@@ -219,7 +219,7 @@ class Module(object):
         self._mod = self._module_info.mod[0]
 
     def __del__(self):
-        if Xmp.vercode() >= 0x040000:
+        if Xmp.VERCODE >= 0x040000:
             if self._player.get(Xmp.PLAYER_STATE) > Xmp.STATE_UNLOADED:
                 self.release()
 
@@ -413,13 +413,11 @@ class Xmp(object):
         "Invalid parameter"
     ]
     
-    @staticmethod
-    def version():
-        return xmp_version
-
-    @staticmethod
-    def vercode():
-        return xmp_vercode
+    VERSION = xmp_version
+    VERCODE = xmp_vercode.value
+    VER_MAJOR = (VERCODE & 0xff0000) >> 16
+    VER_MINOR = (VERCODE & 0x00ff00) >> 8
+    VER_RELEASE = VERCODE & 0x0000ff
 
     # Extra convenience calls
 
