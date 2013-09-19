@@ -1417,13 +1417,13 @@ class Player(object):
         """End module replay and release player memory."""
         xmp_end_player(self._ctx)
 
-    def set_parameter(self, param, value):
+    def set(self, param, value):
         code = xmp_set_player(self._ctx, param, value)
         if code < 0:
             if code == XMP_ERROR_INVALID:
                 raise ValueError('Invalid value {0}'.format(value))
 
-    def get_parameter(self, param):
+    def get(self, param):
         return xmp_get_player(self._ctx, param)
 
     def inject_event(self, chn, event):
@@ -1499,6 +1499,11 @@ class Module(object):
         self._module_info = struct_xmp_module_info()
         xmp_get_module_info(self._ctx, pointer(self._module_info))
         self._mod = self._module_info.mod[0]
+
+    def __del__(self):
+        if Xmp.vercode() >= 0x040000:
+            if self._player.get(Xmp.PLAYER_STATE) > Xmp.STATE_UNLOADED:
+                self.release()
 
     def __getattr__(self, n):
         return getattr(self._mod, n)
@@ -1604,6 +1609,9 @@ class Xmp(object):
     PLAYER_FLAGS        = XMP_PLAYER_FLAGS
     PLAYER_CFLAGS       = XMP_PLAYER_CFLAGS 
     PLAYER_SMPCTL       = XMP_PLAYER_SMPCTL
+    PLAYER_VOLUME       = XMP_PLAYER_VOLUME
+    PLAYER_STATE        = XMP_PLAYER_STATE
+    PLAYER_SFX_VOLUME   = XMP_PLAYER_SFX_VOLUME
 
     INTERP_NEAREST      = XMP_INTERP_NEAREST
     INTERP_LINEAR       = XMP_INTERP_LINEAR
@@ -1611,6 +1619,10 @@ class Xmp(object):
 
     DSP_LOWPASS         = XMP_DSP_LOWPASS
     DSP_ALL             = XMP_DSP_ALL
+
+    STATE_UNLOADED      = XMP_STATE_UNLOADED
+    STATE_LOADED        = XMP_STATE_LOADED
+    STATE_PLAYING       = XMP_STATE_PLAYING
 
     FLAGS_VBLANK        = XMP_FLAGS_VBLANK
     FLAGS_FX9BUG        = XMP_FLAGS_FX9BUG
@@ -1683,6 +1695,14 @@ class Xmp(object):
         "Invalid parameter"
     ]
     
+    @staticmethod
+    def version():
+        return xmp_version
+
+    @staticmethod
+    def vercode():
+        return xmp_vercode
+
     # Extra convenience calls
 
     @staticmethod

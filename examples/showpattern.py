@@ -18,10 +18,6 @@ def display_pattern(module, num):
     pattern = module.get_pattern(num)
     print 'PATTERN {0:02x}'.format(num)
 
-    print module.name
-    print pattern
-    print pattern.rows
-
     for i in range(pattern.rows):
         sys.stdout.write('{0:02X}|'.format(i))
 
