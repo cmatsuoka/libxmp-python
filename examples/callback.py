@@ -22,14 +22,14 @@ def cb_callback(in_data, frame_count, time_info, status):
     """Pyaudio callback function."""
     size = frame_count * CHANNELS * WORD_SIZE
     lock.acquire()
-    data = mod.play_buffer(size)
+    data = player.play_buffer(size)
     lock.release()
     return (data, pyaudio.paContinue)
 
 def play(filename):
     """Load and play the module file."""
 
-    global mod
+    global player
     player = Player()
 
     try:
@@ -57,7 +57,7 @@ def play(filename):
 
     while stream.is_active():
         lock.acquire()
-        mod.get_frame_info(info)
+        player.get_frame_info(info)
         lock.release()
         sys.stdout.write(' {0.pos:>3}/{1.len:>3} {0.row:>3}/{0.num_rows:>3}\r'
                          .format(info, mod))

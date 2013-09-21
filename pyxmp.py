@@ -1451,11 +1451,44 @@ class Player(object):
         """Skip replay to the start of the given position."""
         return xmp_set_position(self._ctx, num)
 
-    def stop_module(self):
+    def scan(self):
+        """Scan the loaded module for sequences and timing."""
+        xmp_scan_module(self._ctx)
+
+    def play(self, callback, loop = False, args = { }):
+        fi = FrameInfo();
+        self._player.start();
+        while self.play_frame():
+            self.get_frame_info(fi)
+            if loop and fi.loop_count > 0:
+                break
+            if callback(self, fi, args) != True:
+                break
+        self._player.end()
+
+    def play_frame(self):
+        """Play one frame of the module."""
+        return xmp_play_frame(self._ctx) == 0
+
+    def play_buffer(self, size, loop = 1, buf = None):
+        if buf == None:
+            buf = Xmp.create_buffer(size)
+        ret = xmp_play_buffer(self._ctx, buf, size, loop)
+        if ret == 0:
+	    return buf
+	else:
+	    return None
+
+    def stop(self):
         """Stop the currently playing module."""
         xmp_stop_module(self._ctx)
 
-    def restart_module(self):
+    def get_frame_info(self, info = FrameInfo()):
+        """Retrieve current frame information."""
+        xmp_get_frame_info(self._ctx, pointer(info))
+        return info
+
+    def restart(self):
         """Restart the currently playing module."""
         xmp_restart_module(self._ctx)
 
@@ -1517,37 +1550,9 @@ class Module(object):
         else:
            return None
 
-    def scan(self):
-        """Scan the loaded module for sequences and timing."""
-        xmp_scan_module(self._ctx)
-
     def release(self):
         """Release all memory used by the loaded module."""
         xmp_release_module(self._ctx)
-
-    def play(self, callback, loop = False, args = { }):
-        fi = FrameInfo();
-        self._player.start();
-        while self.play_frame():
-            self.get_frame_info(fi)
-            if loop and fi.loop_count > 0:
-                break
-            if callback(self, fi, args) != True:
-                break
-        self._player.end()
-
-    def play_frame(self):
-        """Play one frame of the module."""
-        return xmp_play_frame(self._ctx) == 0
-
-    def play_buffer(self, size, loop = 1, buf = None):
-        if buf == None:
-            buf = Xmp.create_buffer(size)
-        ret = xmp_play_buffer(self._ctx, buf, size, loop)
-        if ret == 0:
-	    return buf
-	else:
-	    return None
 
     def get_info(self, info = None):
         if info == None:
@@ -1555,11 +1560,6 @@ class Module(object):
         else:
             info.__dict__.update(self._module_info.__dict__)
             return info
-
-    def get_frame_info(self, info = FrameInfo()):
-        """Retrieve current frame information."""
-        xmp_get_frame_info(self._ctx, pointer(info))
-        return info
 
     def get_instrument(self, num):
         _check_range('instrument', num, 0, self.ins)
@@ -1591,6 +1591,9 @@ class Module(object):
     def get_channel(self, num):
         _check_range('track', num, 0, self.chn)
         return self.xxc[num]
+
+    def get_player(self):
+        return self._player
 
 class Xmp(object):
     """A multi format module player

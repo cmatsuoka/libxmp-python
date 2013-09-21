@@ -66,8 +66,8 @@ def play(filename):
     # reuse this object
     finfo = FrameInfo()
     
-    while mod.play_frame():
-        mod.get_frame_info(finfo)
+    while player.play_frame():
+        player.get_frame_info(finfo)
         if finfo.loop_count > 0:
             break
     

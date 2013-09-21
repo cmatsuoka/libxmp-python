@@ -22,17 +22,6 @@ WORD_SIZE = 2
 SAMPLE_RATE = 44100
 
 
-def cb_player(in_data, frame_count, time_info, status):
-    """Pyaudio callback function."""
-    global data, end_flag
-    size = frame_count * CHANNELS * WORD_SIZE
-    lock.acquire()
-    data = mod.play_buffer(size)
-    if data == None:
-        end_flag = True
-    lock.release()
-    return (data, pyaudio.paContinue)
-
 def stop():
     """Exit handler."""
     example.stop()
@@ -75,8 +64,8 @@ class Example(QWidget):
 
     def paintEvent(self, event):
         """Draw the oscilloscope."""
-        lock.acquire()
-        if (end_flag):
+        self.lock.acquire()
+        if (self.end_flag):
             self._thread.stop()
             app.quit()
         else:
@@ -86,33 +75,44 @@ class Example(QWidget):
             height = self.size().height() / 2
             for i in range(width):
                 pos = i * 4
-                left = struct.unpack('=h', data[pos:pos + 2])[0]
-                right = struct.unpack('=h', data[pos + 2:pos + 4])[0]
+                left = struct.unpack('=h', self.data[pos:pos + 2])[0]
+                right = struct.unpack('=h', self.data[pos + 2:pos + 4])[0]
                 self._qp.drawPoint(i, height + height * (left + right) / 65536)
             self._qp.end()
-        lock.release()
+        self.lock.release()
+
+    def callback(self, in_data, frame_count, time_info, status):
+        """Pyaudio callback function."""
+        size = frame_count * CHANNELS * WORD_SIZE
+        self.lock.acquire()
+        self.data = self.player.play_buffer(size)
+        if self.data == None:
+            self.end_flag = True
+        self.lock.release()
+        return (self.data, pyaudio.paContinue)
 
     def play(self, filename):
         """Load and play the module file."""
 
-        global mod
-        player = Player()
+        self.lock = Lock()
+        self.end_flag = False
+        self.player = Player()
 
         try:
-            mod = Module(filename, player)
+            self.mod = Module(filename, self.player)
         except IOError, error:
             sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
             sys.exit(1)
     
         # Display module info
-        print 'Name: {0.name}\nType: {0.type}'.format(mod)
+        print 'Name: {0.name}\nType: {0.type}'.format(self.mod)
     
         self._audio = pyaudio.PyAudio()
         self._stream = self._audio.open(
                         format = self._audio.get_format_from_width(WORD_SIZE),
                         channels = CHANNELS, rate = SAMPLE_RATE,
-                        output = True, stream_callback = cb_player)
-        player.start(SAMPLE_RATE)
+                        output = True, stream_callback = self.callback)
+        self.player.start(SAMPLE_RATE)
         self._stream.start_stream()
 
     def stop(self):
@@ -121,8 +121,8 @@ class Example(QWidget):
         self._stream.stop_stream()
         self._stream.close()
         self._audio.terminate()
-        player.end()
-        module.release()
+        self.player.end()
+        self.mod.release()
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -132,8 +132,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     example = Example()
 
-    lock = Lock()
-    end_flag = False
     example.play(sys.argv[1])
     atexit.register(stop)
 
