@@ -1457,14 +1457,14 @@ class Player(object):
 
     def play(self, callback, loop = False, args = { }):
         fi = FrameInfo();
-        self._player.start();
+        self.start();
         while self.play_frame():
             self.get_frame_info(fi)
             if loop and fi.loop_count > 0:
                 break
-            if callback(self, fi, args) != True:
+            if callback(fi, args) != True:
                 break
-        self._player.end()
+        self.end()
 
     def play_frame(self):
         """Play one frame of the module."""

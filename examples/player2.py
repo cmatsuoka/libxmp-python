@@ -44,10 +44,12 @@ def show_info(mod):
         if len(ins.name.rstrip()) > 0:
             print(" %2d %-32.32s  " % (i, mod.xxi[i].name))
     
-def cb_frame(mod, finfo, args):
+def cb_frame(finfo, args):
     """
     This callback is called after each module frame is played.
     """
+    mod = args[0]
+
     if finfo.frame == 0:
         sys.stdout.write(" %3d/%3d  %3d/%3d\r" %
             (finfo.pos, mod.len, finfo.row, finfo.num_rows))
@@ -63,8 +65,10 @@ def play(filename):
     Our mod player using the play() method and a callback.
     """
 
+    player = Player()
+
     try:
-        mod = Module(filename)
+        mod = Module(filename, player)
     except IOError, error:
         sys.stderr.write('{0}: {1}\n'.format(filename, error.strerror))
         sys.exit(1)
@@ -73,7 +77,7 @@ def play(filename):
     sound = Sound()
 
     show_info(mod)
-    mod.play(cb_frame) 
+    player.play(cb_frame, args = [ mod ]) 
     sound.close()
     mod.release()
 
