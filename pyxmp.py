@@ -1545,10 +1545,15 @@ class Module(object):
     def test(path, info = struct_xmp_test_info()):
         """Test if a file is a valid module."""
         code = xmp_test_module(path, pointer(info))
-        if code == 0:
-           return info
-        else:
-           return None
+
+        if code == -XMP_ERROR_SYSTEM:
+            errno = get_errno()
+            raise IOError(-code, '{0}: {1}'
+                .format(Xmp._error[-code], os.strerror(errno)))
+        elif code < 0:
+            raise IOError(-code, Xmp._error[-code])
+
+        return info
 
     def release(self):
         """Release all memory used by the loaded module."""

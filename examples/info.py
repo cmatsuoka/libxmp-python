@@ -14,10 +14,11 @@ if len(sys.argv) < 2:
     print 'Usage: {0} <module>'.format(os.path.basename(sys.argv[0]))
     sys.exit(1)
 
-info = TestInfo()
-
 for name in sys.argv[1:]:
-    if Module.test(name, info):
+    try:
+        info = Module.test(name)
         print '{0:25.25} {1.type:25.25} {1.name}'.format(name, info)
+    except:
+        pass
 
 
