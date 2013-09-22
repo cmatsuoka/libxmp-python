@@ -23,8 +23,11 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(info.type, 'Fast Tracker II (XM)')
 
     def test_test_module_invalid(self):
-        info = Module.test('buffer.raw')
-        self.assertEqual(info, None)
+        try:
+            info = Module.test('buffer.raw')
+        except IOError, e:
+            z = e
+        self.assertEqual(z.errno, Xmp.ERROR_FORMAT)
 
     def test_start_player(self):
         player = Player()
@@ -74,8 +77,8 @@ class MixerTests(unittest.TestCase):
         self.mod.release()
 
     def test_play_buffer(self):
-        self.mod.play_frame()
-        fi = self.mod.get_frame_info()
+        self.player.play_frame()
+        fi = self.player.get_frame_info()
         buffer = fi.get_buffer()
         f = open('buffer.raw', 'rb')
         ref = f.read()
@@ -92,37 +95,37 @@ class PlayerTests(unittest.TestCase):
         self.mod.release()
 
     def test_start_position(self):
-        fi = self.mod.get_frame_info()
+        fi = self.player.get_frame_info()
         self.assertEqual(fi.pos, 0)
 
     def test_set_position(self):
         self.player.set_position(3)
-        fi = self.mod.get_frame_info()
+        fi = self.player.get_frame_info()
         self.assertEqual(fi.pos, 3)
 
     def test_next_position(self):
         self.player.set_position(3)
         self.player.next_position()
-        fi = self.mod.get_frame_info()
+        fi = self.player.get_frame_info()
         self.assertEqual(fi.pos, 4)
  
     def test_prev_position(self):
         self.player.set_position(3)
         self.player.prev_position()
-        fi = self.mod.get_frame_info()
+        fi = self.player.get_frame_info()
         self.assertEqual(fi.pos, 2)
  
     def test_restart_module(self):
         self.player.set_position(3)
-        self.player.restart_module()
-        fi = self.mod.get_frame_info()
+        self.player.restart()
+        fi = self.player.get_frame_info()
         self.assertEqual(fi.pos, 0)
 
     def test_stop_module(self):
-        ret = self.mod.play_frame()
+        ret = self.player.play_frame()
         self.assertTrue(ret)
-        self.player.stop_module()
-        ret = self.mod.play_frame()
+        self.player.stop()
+        ret = self.player.play_frame()
         self.assertFalse(ret)
  
 class ModuleTests(unittest.TestCase):
