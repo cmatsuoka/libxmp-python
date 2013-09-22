@@ -35,8 +35,7 @@ class MediaPanel(wx.Panel):
         self.createMenu()
         self.layoutControls()
  
-        sp = wx.StandardPaths.Get()
-        self.currentFolder = sp.GetDocumentsDir()
+        self.currentFolder = os.getcwd()
  
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.onTimer)
@@ -149,15 +148,13 @@ class MediaPanel(wx.Panel):
         """
         Opens file dialog to browse for music
         """
-        dlg = wx.FileDialog(
-            self, message="Choose a file",
-            defaultDir=self.currentFolder, 
-            defaultFile="",
-            style=wx.OPEN | wx.CHANGE_DIR
-            )
+        dlg = wx.FileDialog(self, message="Choose a file",
+                            defaultDir=self.currentFolder, 
+                            defaultFile="",
+                            style=wx.OPEN | wx.CHANGE_DIR)
+
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
-
             path = unicodedata.normalize('NFKD', path).encode('ascii','ignore')
             self.currentFolder = os.path.dirname(path)
             self.loadMusic(path)
@@ -173,12 +170,10 @@ class MediaPanel(wx.Panel):
         """
         Pauses the music
         """
-
         if self.stream.is_active():
             self.stream.stop_stream()
         else:
             self.stream.start_stream()
-
  
     def callback(self, in_data, frame_count, time_info, status):
         """Pyaudio callback function."""
@@ -187,6 +182,7 @@ class MediaPanel(wx.Panel):
         data = self.player.play_buffer(size)
         self.lock.release()
         return (data, pyaudio.paContinue)
+        data = Xmp.create_buffer(size)
 
 
     def onPlay(self, event):
