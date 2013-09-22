@@ -97,22 +97,6 @@ class Instrument(object):
         _check_range('key', key, 0, XMP_MAX_KEYS)
         return self._xxi.map[key].ins
 
-class Channel(object):
-    def __init__(self, xxc, player):
-        self._xxc = xxc
-        self._player = player
-        self._ctx = player.get_context();
-
-    def __getattr__(self, n):
-        return getattr(self._xxc, n)
-
-    def mute(self, val):
-        return xmp_channel_mute(self._ctx, chn, val)
-
-    def set_vol(self,val):
-        return xmp_channel_vol(self._ctx, chn, val)
-
-
 class Player(object):
 
     def __init__(self, freq = 44100, mode = 0):
@@ -153,9 +137,9 @@ class Player(object):
 
     def set(self, param, value):
         code = xmp_set_player(self._ctx, param, value)
-
-        if code == XMP_ERROR_INVALID:
-            raise ValueError('Invalid value {0}'.format(value))
+        if code < 0:
+            if code == XMP_ERROR_INVALID:
+                raise ValueError('Invalid value {0}'.format(value))
 
     def get(self, param):
         return xmp_get_player(self._ctx, param)
@@ -229,6 +213,12 @@ class Player(object):
     def seek_time(self, time):
         """Skip replay to the specified time."""
         return xmp_seek_time(self._ctx, time)
+
+    def channel_mute(self, chn, val):
+        return xmp_channel_mute(self._ctx, chn, val)
+
+    def channel_vol(self, chn, val):
+        return xmp_channel_vol(self._ctx, chn, val)
 
     def set_instrument_path(self, path):
         return xmp_set_instrument_path(self._ctx, path)
@@ -323,7 +313,7 @@ class Module(object):
 
     def get_channel(self, num):
         _check_range('track', num, 0, self.chn)
-        return Channel(self.xxc[num])
+        return self.xxc[num]
 
     def get_player(self):
         return self._player
