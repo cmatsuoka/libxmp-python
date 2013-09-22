@@ -1085,40 +1085,40 @@ if hasattr(_libs['xmp'], 'xmp_load_module_from_memory'):
     xmp_load_module_from_memory.argtypes = [xmp_context, POINTER(None), c_long]
     xmp_load_module_from_memory.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_sfx_init'):
-    xmp_sfx_init = _libs['xmp'].xmp_sfx_init
-    xmp_sfx_init.argtypes = [xmp_context, c_int, c_int]
-    xmp_sfx_init.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_start_smix'):
+    xmp_start_smix = _libs['xmp'].xmp_start_smix
+    xmp_start_smix.argtypes = [xmp_context, c_int, c_int]
+    xmp_start_smix.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_sfx_deinit'):
-    xmp_sfx_deinit = _libs['xmp'].xmp_sfx_deinit
-    xmp_sfx_deinit.argtypes = [xmp_context]
-    xmp_sfx_deinit.restype = None
+if hasattr(_libs['xmp'], 'xmp_end_smix'):
+    xmp_end_smix = _libs['xmp'].xmp_end_smix
+    xmp_end_smix.argtypes = [xmp_context]
+    xmp_end_smix.restype = None
 
-if hasattr(_libs['xmp'], 'xmp_sfx_play_instrument'):
-    xmp_sfx_play_instrument = _libs['xmp'].xmp_sfx_play_instrument
-    xmp_sfx_play_instrument.argtypes = [xmp_context, c_int, c_int, c_int, c_int]
-    xmp_sfx_play_instrument.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_smix_play_instrument'):
+    xmp_smix_play_instrument = _libs['xmp'].xmp_smix_play_instrument
+    xmp_smix_play_instrument.argtypes = [xmp_context, c_int, c_int, c_int, c_int]
+    xmp_smix_play_instrument.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_sfx_play_sample'):
-    xmp_sfx_play_sample = _libs['xmp'].xmp_sfx_play_sample
-    xmp_sfx_play_sample.argtypes = [xmp_context, c_int, c_int, c_int, c_int]
-    xmp_sfx_play_sample.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_smix_play_sample'):
+    xmp_smix_play_sample = _libs['xmp'].xmp_smix_play_sample
+    xmp_smix_play_sample.argtypes = [xmp_context, c_int, c_int, c_int, c_int]
+    xmp_smix_play_sample.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_sfx_channel_pan'):
-    xmp_sfx_channel_pan = _libs['xmp'].xmp_sfx_channel_pan
-    xmp_sfx_channel_pan.argtypes = [xmp_context, c_int, c_int]
-    xmp_sfx_channel_pan.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_smix_channel_pan'):
+    xmp_smix_channel_pan = _libs['xmp'].xmp_smix_channel_pan
+    xmp_smix_channel_pan.argtypes = [xmp_context, c_int, c_int]
+    xmp_smix_channel_pan.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_sfx_load_sample'):
-    xmp_sfx_load_sample = _libs['xmp'].xmp_sfx_load_sample
-    xmp_sfx_load_sample.argtypes = [xmp_context, c_int, String]
-    xmp_sfx_load_sample.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_smix_load_sample'):
+    xmp_smix_load_sample = _libs['xmp'].xmp_smix_load_sample
+    xmp_smix_load_sample.argtypes = [xmp_context, c_int, String]
+    xmp_smix_load_sample.restype = c_int
 
-if hasattr(_libs['xmp'], 'xmp_sfx_release_sample'):
-    xmp_sfx_release_sample = _libs['xmp'].xmp_sfx_release_sample
-    xmp_sfx_release_sample.argtypes = [xmp_context, c_int]
-    xmp_sfx_release_sample.restype = c_int
+if hasattr(_libs['xmp'], 'xmp_smix_release_sample'):
+    xmp_smix_release_sample = _libs['xmp'].xmp_smix_release_sample
+    xmp_smix_release_sample.argtypes = [xmp_context, c_int]
+    xmp_smix_release_sample.restype = c_int
 
 XMP_NAME_SIZE = 64
 
@@ -1152,7 +1152,7 @@ XMP_PLAYER_VOLUME = 7
 
 XMP_PLAYER_STATE = 8
 
-XMP_PLAYER_SFX_VOLUME = 9
+XMP_PLAYER_SMIX_VOLUME = 9
 
 XMP_INTERP_NEAREST = 0
 
@@ -1630,7 +1630,7 @@ class Xmp(object):
     PLAYER_SMPCTL       = XMP_PLAYER_SMPCTL
     PLAYER_VOLUME       = XMP_PLAYER_VOLUME
     PLAYER_STATE        = XMP_PLAYER_STATE
-    PLAYER_SFX_VOLUME   = XMP_PLAYER_SFX_VOLUME
+    PLAYER_SMIX_VOLUME  = XMP_PLAYER_SMIX_VOLUME
 
     INTERP_NEAREST      = XMP_INTERP_NEAREST
     INTERP_LINEAR       = XMP_INTERP_LINEAR
