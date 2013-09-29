@@ -3,7 +3,7 @@ Examples
 --------
 
 * player.py: A module player using pyaudio. This player uses the play_frame()
-             method to play one frame per call.
+  method to play one frame per call.
 
   Usage: player.py <module file>::
 
@@ -19,13 +19,13 @@ Examples
        1/ 42   44/ 64
 
 * player2.py: Same as above, but using the play() method to play the entire
-              module.
+  module.
 
   Usage: player2.py <module file>
 
 
 * callback.py: Same as above, but using the pyaudio callback and the
-               play_buffer() method to play one buffer per call.
+  play_buffer() method to play one buffer per call.
 
   Usage: callback.py <module file>
 
@@ -47,8 +47,7 @@ Examples
 
 
 * getsample.py: Extract samples from module files. If the instrument has more
-                than one sample, all samples will be extracted to different
-                wave files.
+  than one sample, all samples will be extracted to different wave files.
 
   Usage: getsample.py <module file> <instrument number>::
 
