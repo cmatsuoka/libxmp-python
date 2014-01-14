@@ -38,7 +38,7 @@ def display_pattern(module, num):
             if event.ins == 0:
                 sys.stdout.write('--')
             else:
-                sys.stdout.write('{0:02x}'.format(event.ins - 1))
+                sys.stdout.write('{0:02x}'.format(event.ins))
 
             sys.stdout.write('|')
         sys.stdout.write('\n')
